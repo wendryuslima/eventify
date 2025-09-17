@@ -33,7 +33,9 @@ class DatabaseService {
       >
     ) => Promise<T>
   ): Promise<T> {
-    return await this.prisma.$transaction(fn);
+    return await this.prisma.$transaction(fn, {
+      timeout: 10000, 
+    });
   }
 }
 

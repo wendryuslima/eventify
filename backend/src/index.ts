@@ -5,7 +5,6 @@ import dotenv from "dotenv";
 import { eventRoutes } from "./routes/events";
 import { inscriptionRoutes } from "./routes/inscriptions";
 
-// Carregar variáveis de ambiente
 dotenv.config();
 
 const app = express();
@@ -57,7 +56,7 @@ app.use(
   }
 );
 
-app.use("*", (req, res) => {
+app.use((req, res) => {
   res.status(404).json({
     error: "Not Found",
     message: "Route not found",
