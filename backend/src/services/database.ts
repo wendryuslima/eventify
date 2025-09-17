@@ -1,13 +1,12 @@
-import { PrismaClient } from '../generated/prisma/index';
+import { PrismaClient } from "../generated/prisma/index";
 
-// Singleton do Prisma Client
 class DatabaseService {
   private static instance: DatabaseService;
   private prisma: PrismaClient;
 
   private constructor() {
     this.prisma = new PrismaClient({
-      log: ['query', 'info', 'warn', 'error'],
+      log: ["query", "info", "warn", "error"],
     });
   }
 
@@ -26,9 +25,13 @@ class DatabaseService {
     await this.prisma.$disconnect();
   }
 
-  // Método para executar transações
   public async transaction<T>(
-    fn: (prisma: Omit<PrismaClient, '$connect' | '$disconnect' | '$on' | '$transaction' | '$extends'>) => Promise<T>
+    fn: (
+      prisma: Omit<
+        PrismaClient,
+        "$connect" | "$disconnect" | "$on" | "$transaction" | "$extends"
+      >
+    ) => Promise<T>
   ): Promise<T> {
     return await this.prisma.$transaction(fn);
   }
