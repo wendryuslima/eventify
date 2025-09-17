@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { Event } from "@/types/event";
 import { api, ApiError } from "@/lib/api";
-import { Button } from "@/components/ui/button";
 import { LoadingSpinner, ErrorState, EventCard } from "@/components/shared";
 import { toast } from "sonner";
 
