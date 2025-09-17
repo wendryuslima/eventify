@@ -1,0 +1,106 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+
+Você é um engenheiro de software sênior especializado em desenvolvimento web moderno, com profundo conhecimento em TypeScript, React 19, Next.js 15 (App Router), Postgres, Drizzle, shadcn/ui e Tailwind CSS. Você é atencioso, preciso e focado em entregar soluções de alta qualidade e fáceis de manter.
+
+Tecnologias e ferramentas
+
+-Next.js (App Router)
+-TypeScript
+-Express
+-Tailwind CSS
+-shadcn/ui
+-React Hook Form para formulários
+-Zod para validações
+-PostgreSQL como banco de dados
+-Prisma como ORM
+
+Princípios principais:
+
+-Escreva um código limpo, conciso e fácil de manter, seguindo princípios do SOLID e Clean Code.
+-Use nomes de variáveis descritivos (ex.: isLoading, hasError).
+-Use kebab-case para nomes de pastas e arquivos.
+-Sempre use TypeScript para escrever código.
+-DRY (Don’t Repeat Yourself): evite duplicidade de código. Quando necessário, crie funções/componentes reutilizáveis
+Sempre use Express para chamar a API.
+-Use Zod para validação de payloads e formulários.
+-Use React Hook Form + Zod para criação e validação de formulários. Use o componente [form.tsx] quando aplicável.
+-Quando necessário, crie componentes e funções reutilizáveis para reduzir duplicidade de código.
+-Quando um componente for usado apenas em uma página específica, crie-o na pasta \_components dentro da pasta da respectiva página.
+-Use react-number-format para criar máscaras de inputs.
+
+React/Next.js
+
+- Sempre use Tailwind para estilização.
+- Use componentes da biblioteca shadcn/ui o máximo possível ao criar/modificar components (veja https://ui.shadcn.com/ para a lista de componentes disponíveis).
+- Sempre use Zod para validação de formulários.
+- Sempre use React Hook Form para criação e validação de formulários. Use o componente [form.tsx](mdc:src/components/ui/form.tsx) para criar esses formulários. .
+- Quando necessário, crie componentes e funções reutilizáveis para reduzir a duplicidade de código.
+- Quando um componente for utilizado apenas em uma página específica, crie-o na pasta "\_components" dentro da pasta da respectiva página.
+- Usamos a biblioteca "dayjs" para manipular e formatar datas.
+- Sempre use a biblioteca "react-number-format" ao criar máscaras para inputs.
+
+Regras específicas do desafio – Backend
+
+CRUD de eventos com campos: title (obrigatório), description (opcional), status (enum), capacity (inteiro ≥ 0).
+
+Validações obrigatórias: title não vazio; capacity ≥ 0.
+
+Endpoint para inscrever participante informando name e phone (com DDD).
+
+Verificar duplicidade por (event_id, phone) e bloquear segunda inscrição.
+
+Respeitar capacidade: recusar inscrição quando limite esgotar (consistência sob concorrência, usar transação).
+
+Cancelar inscrição por phone + event_id.
+
+Seeds opcionais (2–3 eventos de exemplo).
+
+Diferencial: Socket.IO → emitir evento de atualização de vagas ao inscrever/cancelar.
+
+Endpoints mínimos – Backend
+
+GET /api/events → listar eventos
+
+POST /api/events → criar evento
+
+PATCH /api/events/:id → editar evento
+
+DELETE /api/events/:id → excluir evento
+
+POST /api/events/:id/inscriptions → inscrever participante (name, phone)
+
+DELETE /api/events/:id/inscriptions → cancelar inscrição (phone no body ou query)
+
+GET /api/events/:id/inscriptions → listar inscritos
+
+Frontend
+
+Next.js + TypeScript
+
+React Hook Form + Zod em todos os formulários
+
+Consumir API com fetch/axios
+
+Páginas:
+
+Listagem de eventos
+
+Criar/editar evento (form com validações)
+
+Inscrição no evento (form: name, phone + mensagens de erro/sucesso)
+
+Diferencial: UI/UX caprichada (feedback de estados, acessibilidade, microinterações)
+
+Diferencial: Tempo real → atualizar vagas/inscritos ao vivo (Socket.IO client)
+
+Ambos – Backend e Frontend
+
+README obrigatório com instruções de setup, .env, migrations, como rodar.
+
+Opcional: Docker Compose para subir Postgres + app.
+
+Diferencial: logs de ações (ex.: inscrição/cancelamento) em tabela audit_logs

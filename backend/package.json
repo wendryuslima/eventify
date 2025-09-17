@@ -4,6 +4,13 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
+    "dev": "nodemon src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "db:generate": "prisma generate",
+    "db:push": "prisma db push",
+    "db:migrate": "prisma migrate dev",
+    "db:seed": "tsx prisma/seed.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "prisma": {
@@ -16,11 +23,15 @@
   "dependencies": {
     "@prisma/client": "^6.16.2",
     "express": "^5.1.0",
-    "zod": "^4.1.9"
+    "zod": "^4.1.9",
+    "cors": "^2.8.5",
+    "helmet": "^8.0.0",
+    "dotenv": "^16.4.7"
   },
   "devDependencies": {
     "@types/express": "^5.0.3",
     "@types/node": "^24.5.1",
+    "@types/cors": "^2.8.17",
     "nodemon": "^3.1.10",
     "prisma": "^6.16.2",
     "ts-node": "^10.9.2",
