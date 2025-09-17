@@ -4,39 +4,19 @@ import { useEffect, useState, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { EventDetail } from "@/types/event";
 import { api, ApiError } from "@/lib/api";
+import { LoadingSpinner, ErrorState } from "@/components/shared";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { ArrowLeft, Users, Calendar, UserPlus, UserMinus } from "lucide-react";
+  EventHeader,
+  EventDetailsCard,
+  ParticipantsList,
+  InscriptionForm,
+} from "./_components";
 import { toast } from "sonner";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { PatternFormat } from "react-number-format";
 
-const inscriptionSchema = z.object({
-  name: z
-    .string()
-    .min(1, "Nome é obrigatório")
-    .max(100, "Nome deve ter no máximo 100 caracteres"),
-  phone: z
-    .string()
-    .min(1, "Telefone é obrigatório")
-    .regex(
-      /^\(\d{2}\)\s\d{4,5}-\d{4}$/,
-      "Telefone deve estar no formato (XX) XXXXX-XXXX"
-    ),
-});
-
-type InscriptionFormData = z.infer<typeof inscriptionSchema>;
+type InscriptionFormData = {
+  name: string;
+  phone: string;
+};
 
 export default function EventDetailPage() {
   const params = useParams();
@@ -47,19 +27,6 @@ export default function EventDetailPage() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    reset,
-    setValue,
-    watch,
-  } = useForm<InscriptionFormData>({
-    resolver: zodResolver(inscriptionSchema),
-  });
-
-  const phoneValue = watch("phone");
 
   const loadEvent = useCallback(async () => {
     try {
@@ -91,10 +58,8 @@ export default function EventDetailPage() {
 
     try {
       setSubmitting(true);
-      console.log("Dados sendo enviados:", data);
       await api.createInscription(eventId, data);
       toast.success("Inscrição realizada com sucesso!");
-      reset();
       loadEvent(); // Recarregar dados do evento
     } catch (err) {
       console.error("Erro na inscrição:", err);
@@ -114,7 +79,7 @@ export default function EventDetailPage() {
     try {
       await api.cancelInscription(eventId, { phone });
       toast.success("Inscrição cancelada com sucesso!");
-      loadEvent(); // Recarregar dados do evento
+      loadEvent();
     } catch (err) {
       if (err instanceof ApiError) {
         toast.error("Erro ao cancelar inscrição: " + err.message);
@@ -124,15 +89,6 @@ export default function EventDetailPage() {
     }
   };
 
-  const getStatusColor = (status: string) => {
-    return status === "ACTIVE"
-      ? "bg-green-100 text-green-800"
-      : "bg-gray-100 text-gray-800";
-  };
-
-  const getStatusText = (status: string) => {
-    return status === "ACTIVE" ? "Ativo" : "Inativo";
-  };
 
   if (loading) {
     return (
@@ -350,16 +306,22 @@ export default function EventDetailPage() {
 
                     <div>
                       <Label htmlFor="phone">Telefone</Label>
-                      <PatternFormat
-                        format="(##) #####-####"
-                        mask="_"
-                        value={phoneValue}
-                        onValueChange={(values) => {
-                          setValue("phone", values.formattedValue);
-                        }}
-                        customInput={Input}
-                        placeholder="(11) 99999-9999"
-                        className="mt-1"
+                      <Controller
+                        name="phone"
+                        control={control}
+                        render={({ field }) => (
+                          <PatternFormat
+                            format="(##) #####-####"
+                            mask="_"
+                            placeholder="(11) 99999-9999"
+                            value={field.value}
+                            onValueChange={(values) => {
+                              field.onChange(values.formattedValue);
+                            }}
+                            customInput={Input}
+                            className="mt-1"
+                          />
+                        )}
                       />
                       {errors.phone && (
                         <p className="text-red-500 text-sm mt-1">
