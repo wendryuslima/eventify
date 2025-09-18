@@ -1,6 +1,17 @@
 import { EventDetail } from "@/types/event";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { ArrowLeft, Users, Edit, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -21,14 +32,6 @@ export function EventHeader({
   const router = useRouter();
 
   const handleDeleteEvent = async () => {
-    if (
-      !confirm(
-        "Tem certeza que deseja excluir este evento? Esta ação não pode ser desfeita."
-      )
-    ) {
-      return;
-    }
-
     try {
       const response = await api.deleteEvent(event.id);
       if (response.success) {
@@ -86,10 +89,34 @@ export function EventHeader({
                 Editar
               </Button>
             </Link>
-            <Button variant="outline" size="sm" onClick={handleDeleteEvent}>
-              <Trash2 className="h-4 w-4 mr-2" />
-              Excluir
-            </Button>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="outline" size="sm">
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Excluir
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Tem certeza que deseja excluir o evento &quot;{event.title}
+                    &quot;quot;{event.title}&quot;{event.title}&quot;quot;? Esta
+                    ação não pode ser desfeita e todos os dados relacionados ao
+                    evento serão permanentemente removidos.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={handleDeleteEvent}
+                    className="bg-red-600 hover:bg-red-700"
+                  >
+                    Excluir Evento
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
         </div>
       </div>
