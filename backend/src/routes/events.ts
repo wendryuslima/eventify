@@ -1,197 +1,312 @@
-import { Router, Request, Response, NextFunction } from "express";
-import { eventService } from "../services/event.service";
+import { Router, Request, Response } from "express";
+import { prisma } from "../services/database";
 
 const router = Router();
 
-const validateId = (req: Request, res: Response, next: NextFunction) => {
-  const id = parseInt(req.params.id || "0");
-  if (isNaN(id) || id <= 0) {
-    res.status(400).json({
-      error: "Validation Error",
-      message: "ID inválido",
-    });
-    return;
-  }
-  next();
-};
-
-router.get("/", async (req, res, next) => {
+router.get("/", async (req, res) => {
   try {
-    const events = await eventService.getAllEvents();
+    const events = await prisma.event.findMany({
+      include: {
+        _count: {
+          select: {
+            inscriptions: true,
+          },
+        },
+      },
+      orderBy: {
+        id: "desc",
+      },
+    });
 
-    const formattedEvents = events.map((event) => ({
-      id: event.id,
-      title: event.title,
-      description: event.description,
-      status: event.status,
-      capacity: event.capacity,
-      totalInscriptions: event._count?.inscriptions || 0,
-      remainingCapacity: event.capacity - (event._count?.inscriptions || 0),
-      createdAt: event.createdAt?.toISOString() || new Date().toISOString(),
-      updatedAt: event.updatedAt?.toISOString() || new Date().toISOString(),
-    }));
+    const eventsWithCount = events.map((event) => {
+      return {
+        id: event.id,
+        title: event.title,
+        description: event.description,
+        status: event.status,
+        capacity: event.capacity,
+        totalInscriptions: event._count.inscriptions,
+        remainingCapacity: event.capacity - event._count.inscriptions,
+        createdAt: event.createdAt.toISOString(),
+        updatedAt: event.updatedAt.toISOString(),
+      };
+    });
 
     res.json({
       success: true,
-      data: formattedEvents,
-      total: formattedEvents.length,
+      data: eventsWithCount,
+      total: eventsWithCount.length,
     });
   } catch (error) {
-    next(error);
+    console.error("Erro ao buscar eventos:", error);
+    res.status(500).json({
+      error: "Erro interno do servidor",
+      message: "Não foi possível buscar os eventos",
+    });
   }
 });
 
-router.get("/:id", validateId, async (req: Request, res, next) => {
+router.get("/:id", async (req, res) => {
   try {
-    const id = parseInt(req.params.id || "0");
-    const event = await eventService.getEventById(id);
+    const eventId = parseInt(req.params.id);
+
+    if (isNaN(eventId) || eventId <= 0) {
+      return res.status(400).json({
+        error: "ID inválido",
+        message: "O ID deve ser um número válido",
+      });
+    }
+
+    const event = await prisma.event.findUnique({
+      where: {
+        id: eventId,
+      },
+      include: {
+        inscriptions: true,
+        _count: {
+          select: {
+            inscriptions: true,
+          },
+        },
+      },
+    });
 
     if (!event) {
-      res.status(404).json({
-        error: "Not Found",
-        message: "Evento não encontrado",
+      return res.status(404).json({
+        error: "Evento não encontrado",
+        message: "Não existe evento com este ID",
       });
-      return;
-    }
-
-    const formattedEvent = {
-      id: event.id,
-      title: event.title,
-      description: event.description,
-      status: event.status,
-      capacity: event.capacity,
-      totalInscriptions: event._count?.inscriptions || 0,
-      remainingCapacity: event.capacity - (event._count?.inscriptions || 0),
-      createdAt: event.createdAt?.toISOString() || new Date().toISOString(),
-      updatedAt: event.updatedAt?.toISOString() || new Date().toISOString(),
-      inscriptions: event.inscriptions || [],
-    };
-
-    res.json({
-      success: true,
-      data: formattedEvent,
-    });
-  } catch (error) {
-    next(error);
-  }
-});
-
-// Criar evento
-router.post("/", async (req, res, next) => {
-  try {
-    const { title, description, capacity, status } = req.body;
-
-    // Validação simples
-    if (!title || title.trim() === "") {
-      res.status(400).json({
-        error: "Validation Error",
-        message: "Título é obrigatório",
-      });
-      return;
-    }
-
-    if (capacity === undefined || capacity < 0) {
-      res.status(400).json({
-        error: "Validation Error",
-        message: "Capacidade deve ser maior ou igual a 0",
-      });
-      return;
     }
 
     const eventData = {
-      title: title.trim(),
-      description: description?.trim() || null,
-      capacity: parseInt(capacity),
-      status: status || "ACTIVE",
+      id: event.id,
+      title: event.title,
+      description: event.description,
+      status: event.status,
+      capacity: event.capacity,
+      totalInscriptions: event._count.inscriptions,
+      remainingCapacity: event.capacity - event._count.inscriptions,
+      createdAt: event.createdAt.toISOString(),
+      updatedAt: event.updatedAt.toISOString(),
+      inscriptions: event.inscriptions,
     };
 
-    const event = await eventService.createEvent(eventData);
+    res.json({
+      success: true,
+      data: eventData,
+    });
+  } catch (error) {
+    console.error("Erro ao buscar evento:", error);
+    res.status(500).json({
+      error: "Erro interno do servidor",
+      message: "Não foi possível buscar o evento",
+    });
+  }
+});
+
+router.post("/", async (req, res) => {
+  try {
+    const { title, description, capacity, status } = req.body;
+
+    if (!title || title.trim() === "") {
+      return res.status(400).json({
+        error: "Título obrigatório",
+        message: "O título do evento é obrigatório",
+      });
+    }
+
+    if (capacity === undefined || capacity === null) {
+      return res.status(400).json({
+        error: "Capacidade obrigatória",
+        message: "A capacidade do evento é obrigatória",
+      });
+    }
+
+    if (isNaN(capacity) || capacity < 0) {
+      return res.status(400).json({
+        error: "Capacidade inválida",
+        message: "A capacidade deve ser um número maior ou igual a 0",
+      });
+    }
+
+    const newEvent = await prisma.event.create({
+      data: {
+        title: title.trim(),
+        description: description ? description.trim() : null,
+        capacity: parseInt(capacity),
+        status: status || "ACTIVE",
+      },
+      include: {
+        _count: {
+          select: {
+            inscriptions: true,
+          },
+        },
+      },
+    });
 
     res.status(201).json({
       success: true,
       message: "Evento criado com sucesso!",
-      data: event,
+      data: {
+        id: newEvent.id,
+        title: newEvent.title,
+        description: newEvent.description,
+        status: newEvent.status,
+        capacity: newEvent.capacity,
+        totalInscriptions: newEvent._count.inscriptions,
+        remainingCapacity: newEvent.capacity - newEvent._count.inscriptions,
+        createdAt: newEvent.createdAt.toISOString(),
+        updatedAt: newEvent.updatedAt.toISOString(),
+      },
     });
   } catch (error) {
-    next(error);
+    console.error("Erro ao criar evento:", error);
+    res.status(500).json({
+      error: "Erro interno do servidor",
+      message: "Não foi possível criar o evento",
+    });
   }
 });
 
-// Editar evento
-router.patch("/:id", validateId, async (req, res, next) => {
+router.patch("/:id", async (req, res) => {
   try {
-    const id = parseInt(req.params.id || "0");
+    const eventId = parseInt(req.params.id);
     const { title, description, capacity, status } = req.body;
 
-    // Validação simples
-    if (title !== undefined && (!title || title.trim() === "")) {
-      res.status(400).json({
-        error: "Validation Error",
-        message: "Título não pode ser vazio",
+    if (isNaN(eventId) || eventId <= 0) {
+      return res.status(400).json({
+        error: "ID inválido",
+        message: "O ID deve ser um número válido",
       });
-      return;
     }
 
-    if (capacity !== undefined && capacity < 0) {
-      res.status(400).json({
-        error: "Validation Error",
-        message: "Capacidade deve ser maior ou igual a 0",
+    
+    const existingEvent = await prisma.event.findUnique({
+      where: { id: eventId },
+    });
+
+    if (!existingEvent) {
+      return res.status(404).json({
+        error: "Evento não encontrado",
+        message: "Não existe evento com este ID",
       });
-      return;
     }
 
     const updateData: {
       title?: string;
-      description?: string;
+      description?: string | null;
       capacity?: number;
       status?: "ACTIVE" | "INACTIVE";
     } = {};
-    if (title !== undefined) updateData.title = title.trim();
-    if (description !== undefined)
-      updateData.description = description?.trim() || undefined;
-    if (capacity !== undefined) updateData.capacity = parseInt(capacity);
-    if (status !== undefined)
-      updateData.status = status as "ACTIVE" | "INACTIVE";
 
-    const event = await eventService.updateEvent(id, updateData);
+    if (title !== undefined) {
+      if (title.trim() === "") {
+        return res.status(400).json({
+          error: "Título inválido",
+          message: "O título não pode ser vazio",
+        });
+      }
+      updateData.title = title.trim();
+    }
+
+    if (description !== undefined) {
+      updateData.description = description ? description.trim() : null;
+    }
+
+    if (capacity !== undefined) {
+      if (isNaN(capacity) || capacity < 0) {
+        return res.status(400).json({
+          error: "Capacidade inválida",
+          message: "A capacidade deve ser um número maior ou igual a 0",
+        });
+      }
+      updateData.capacity = parseInt(capacity);
+    }
+
+    if (status !== undefined) {
+      if (status !== "ACTIVE" && status !== "INACTIVE") {
+        return res.status(400).json({
+          error: "Status inválido",
+          message: "O status deve ser ACTIVE ou INACTIVE",
+        });
+      }
+      updateData.status = status;
+    }
+
+    const updatedEvent = await prisma.event.update({
+      where: { id: eventId },
+      data: updateData,
+      include: {
+        _count: {
+          select: {
+            inscriptions: true,
+          },
+        },
+      },
+    });
 
     res.json({
       success: true,
       message: "Evento atualizado com sucesso!",
-      data: event,
+      data: {
+        id: updatedEvent.id,
+        title: updatedEvent.title,
+        description: updatedEvent.description,
+        status: updatedEvent.status,
+        capacity: updatedEvent.capacity,
+        totalInscriptions: updatedEvent._count.inscriptions,
+        remainingCapacity:
+          updatedEvent.capacity - updatedEvent._count.inscriptions,
+        createdAt: updatedEvent.createdAt.toISOString(),
+        updatedAt: updatedEvent.updatedAt.toISOString(),
+      },
     });
   } catch (error) {
-    if (error instanceof Error && error.message === "Evento não encontrado") {
-      res.status(404).json({
-        error: "Not Found",
-        message: error.message,
-      });
-      return;
-    }
-    next(error);
+    console.error("Erro ao atualizar evento:", error);
+    res.status(500).json({
+      error: "Erro interno do servidor",
+      message: "Não foi possível atualizar o evento",
+    });
   }
 });
 
-// Deletar evento
-router.delete("/:id", validateId, async (req, res, next) => {
+router.delete("/:id", async (req, res) => {
   try {
-    const id = parseInt(req.params.id || "0");
+    const eventId = parseInt(req.params.id);
 
-    await eventService.deleteEvent(id);
+    if (isNaN(eventId) || eventId <= 0) {
+      return res.status(400).json({
+        error: "ID inválido",
+        message: "O ID deve ser um número válido",
+      });
+    }
+
+    const existingEvent = await prisma.event.findUnique({
+      where: { id: eventId },
+    });
+
+    if (!existingEvent) {
+      return res.status(404).json({
+        error: "Evento não encontrado",
+        message: "Não existe evento com este ID",
+      });
+    }
+
+    await prisma.event.delete({
+      where: { id: eventId },
+    });
 
     res.json({
       success: true,
       message: "Evento deletado com sucesso!",
     });
   } catch (error) {
-    if (error instanceof Error && error.message === "Evento não encontrado") {
-      res.status(404).json({
-        error: "Not Found",
-        message: error.message,
-      });
-      return;
-    }
-    next(error);
+    console.error("Erro ao deletar evento:", error);
+    res.status(500).json({
+      error: "Erro interno do servidor",
+      message: "Não foi possível deletar o evento",
+    });
   }
 });
 
