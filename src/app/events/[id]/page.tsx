@@ -107,7 +107,11 @@ export default function EventDetailPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <EventHeader event={event} onBack={() => router.back()} />
+      <EventHeader
+        event={event}
+        onBack={() => router.back()}
+        onEventDeleted={() => router.push("/")}
+      />
 
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid gap-8 lg:grid-cols-2">
@@ -116,6 +120,7 @@ export default function EventDetailPage() {
             <ParticipantsList
               event={event}
               onCancelInscription={handleCancelInscription}
+              onInscriptionUpdated={loadEvent}
             />
           </div>
           <div>

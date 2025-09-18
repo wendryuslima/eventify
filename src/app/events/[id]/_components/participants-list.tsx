@@ -1,17 +1,50 @@
 import { EventDetail } from "@/types/event";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Users, UserMinus } from "lucide-react";
+import { Users, UserMinus, Edit } from "lucide-react";
+import { EditInscriptionModal } from "./edit-inscription-modal";
+import { useState } from "react";
 
 interface ParticipantsListProps {
   event: EventDetail;
   onCancelInscription: (phone: string) => void;
+  onInscriptionUpdated?: () => void;
 }
 
 export function ParticipantsList({
   event,
   onCancelInscription,
+  onInscriptionUpdated,
 }: ParticipantsListProps) {
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [selectedInscription, setSelectedInscription] = useState<{
+    id: number;
+    name: string;
+    phone: string;
+    eventId: number;
+    createdAt: string;
+  } | null>(null);
+
+  const handleEditInscription = (inscription: {
+    id: number;
+    name: string;
+    phone: string;
+    eventId: number;
+    createdAt: string;
+  }) => {
+    setSelectedInscription(inscription);
+    setEditModalOpen(true);
+  };
+
+  const handleModalClose = () => {
+    setEditModalOpen(false);
+    setSelectedInscription(null);
+  };
+
+  const handleInscriptionUpdated = () => {
+    onInscriptionUpdated?.();
+    handleModalClose();
+  };
   return (
     <Card>
       <CardHeader>
@@ -38,19 +71,35 @@ export function ParticipantsList({
                   </p>
                   <p className="text-sm text-gray-600">{inscription.phone}</p>
                 </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => onCancelInscription(inscription.phone)}
-                  className="text-red-600 hover:text-red-700"
-                >
-                  <UserMinus className="h-4 w-4" />
-                </Button>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleEditInscription(inscription)}
+                  >
+                    <Edit className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => onCancelInscription(inscription.phone)}
+                    className="text-red-600 hover:text-red-700"
+                  >
+                    <UserMinus className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
             ))}
           </div>
         )}
       </CardContent>
+
+      <EditInscriptionModal
+        isOpen={editModalOpen}
+        onClose={handleModalClose}
+        inscription={selectedInscription}
+        onSuccess={handleInscriptionUpdated}
+      />
     </Card>
   );
 }

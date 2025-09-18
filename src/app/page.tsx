@@ -4,6 +4,9 @@ import { useEffect, useState } from "react";
 import { Event } from "@/types/event";
 import { api, ApiError } from "@/lib/api";
 import { LoadingSpinner, ErrorState, EventCard } from "@/components/shared";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
+import Link from "next/link";
 import { toast } from "sonner";
 
 export default function Home() {
@@ -66,9 +69,18 @@ export default function Home() {
                 Encontre e participe de eventos incríveis
               </p>
             </div>
-            <div className="text-sm text-gray-500">
-              {events.length} evento{events.length !== 1 ? "s" : ""} disponível
-              {events.length !== 1 ? "is" : ""}
+            <div className="flex items-center gap-4">
+              <div className="text-sm text-gray-500">
+                {events.length} evento{events.length !== 1 ? "s" : ""}{" "}
+                disponível
+                {events.length !== 1 ? "is" : ""}
+              </div>
+              <Link href="/events/create">
+                <Button className="flex items-center gap-2">
+                  <Plus className="h-4 w-4" />
+                  Criar Evento
+                </Button>
+              </Link>
             </div>
           </div>
         </div>
@@ -89,7 +101,11 @@ export default function Home() {
         ) : (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {events.map((event) => (
-              <EventCard key={event.id} event={event} />
+              <EventCard
+                key={event.id}
+                event={event}
+                onEventDeleted={loadEvents}
+              />
             ))}
           </div>
         )}

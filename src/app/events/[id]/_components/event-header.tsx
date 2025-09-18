@@ -1,14 +1,46 @@
 import { EventDetail } from "@/types/event";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Users } from "lucide-react";
+import { ArrowLeft, Users, Edit, Trash2 } from "lucide-react";
+import Link from "next/link";
+import { toast } from "sonner";
+import { api } from "@/lib/api";
+import { useRouter } from "next/navigation";
 
 interface EventHeaderProps {
   event: EventDetail;
   onBack: () => void;
+  onEventDeleted?: () => void;
 }
 
-export function EventHeader({ event, onBack }: EventHeaderProps) {
+export function EventHeader({
+  event,
+  onBack,
+  onEventDeleted,
+}: EventHeaderProps) {
+  const router = useRouter();
+
+  const handleDeleteEvent = async () => {
+    if (
+      !confirm(
+        "Tem certeza que deseja excluir este evento? Esta ação não pode ser desfeita."
+      )
+    ) {
+      return;
+    }
+
+    try {
+      const response = await api.deleteEvent(event.id);
+      if (response.success) {
+        toast.success("Evento excluído com sucesso!");
+        onEventDeleted?.();
+        router.push("/");
+      }
+    } catch (error) {
+      console.error("Erro ao excluir evento:", error);
+      toast.error("Erro ao excluir evento. Tente novamente.");
+    }
+  };
   const getStatusColor = (status: string) => {
     return status === "ACTIVE"
       ? "bg-green-100 text-green-800"
@@ -46,6 +78,18 @@ export function EventHeader({ event, onBack }: EventHeaderProps) {
                 </span>
               </div>
             </div>
+          </div>
+          <div className="flex gap-2">
+            <Link href={`/events/${event.id}/edit`}>
+              <Button variant="outline" size="sm">
+                <Edit className="h-4 w-4 mr-2" />
+                Editar
+              </Button>
+            </Link>
+            <Button variant="outline" size="sm" onClick={handleDeleteEvent}>
+              <Trash2 className="h-4 w-4 mr-2" />
+              Excluir
+            </Button>
           </div>
         </div>
       </div>

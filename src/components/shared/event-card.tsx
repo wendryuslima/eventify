@@ -8,14 +8,17 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar, Users } from "lucide-react";
+import { Calendar, Users, Edit, Trash2 } from "lucide-react";
 import Link from "next/link";
+import { toast } from "sonner";
+import { api } from "@/lib/api";
 
 interface EventCardProps {
   event: Event;
+  onEventDeleted?: () => void;
 }
 
-export function EventCard({ event }: EventCardProps) {
+export function EventCard({ event, onEventDeleted }: EventCardProps) {
   const getStatusColor = (status: string) => {
     return status === "ACTIVE"
       ? "bg-green-100 text-green-800"
@@ -32,6 +35,27 @@ export function EventCard({ event }: EventCardProps) {
     return "Ver Detalhes";
   };
 
+  const handleDeleteEvent = async () => {
+    if (
+      !confirm(
+        "Tem certeza que deseja excluir este evento? Esta ação não pode ser desfeita."
+      )
+    ) {
+      return;
+    }
+
+    try {
+      const response = await api.deleteEvent(event.id);
+      if (response.success) {
+        toast.success("Evento excluído com sucesso!");
+        onEventDeleted?.();
+      }
+    } catch (error) {
+      console.error("Erro ao excluir evento:", error);
+      toast.error("Erro ao excluir evento. Tente novamente.");
+    }
+  };
+
   return (
     <Card className="hover:shadow-lg transition-shadow duration-200">
       <CardHeader>
@@ -41,6 +65,16 @@ export function EventCard({ event }: EventCardProps) {
             <Badge className={getStatusColor(event.status)}>
               {getStatusText(event.status)}
             </Badge>
+          </div>
+          <div className="flex gap-2">
+            <Link href={`/events/${event.id}/edit`}>
+              <Button variant="outline" size="sm">
+                <Edit className="h-4 w-4" />
+              </Button>
+            </Link>
+            <Button variant="outline" size="sm" onClick={handleDeleteEvent}>
+              <Trash2 className="h-4 w-4" />
+            </Button>
           </div>
         </div>
       </CardHeader>

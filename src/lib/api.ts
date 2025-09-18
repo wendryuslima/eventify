@@ -66,6 +66,26 @@ export const api = {
     return fetchApi<ApiResponse<EventDetail>>(`/api/events/${id}`);
   },
 
+  async deleteEvent(id: number): Promise<ApiResponse<{ message: string }>> {
+    return fetchApi<ApiResponse<{ message: string }>>(`/api/events/${id}`, {
+      method: "DELETE",
+    });
+  },
+
+  async post<T>(endpoint: string, data: unknown): Promise<T> {
+    return fetchApi<T>(endpoint, {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  },
+
+  async patch<T>(endpoint: string, data: unknown): Promise<T> {
+    return fetchApi<T>(endpoint, {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    });
+  },
+
   // Inscrições
   async createInscription(
     eventId: number,
@@ -118,3 +138,4 @@ export const api = {
 };
 
 export { ApiError };
+export type { ApiResponse };
