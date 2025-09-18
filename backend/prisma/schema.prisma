@@ -6,8 +6,8 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db"
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model Event {
@@ -16,6 +16,8 @@ model Event {
   description String?
   status      EventStatus   @default(ACTIVE)
   capacity    Int
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
   inscriptions Inscription[]
 }
 

@@ -27,6 +27,8 @@ router.get("/", async (req, res, next) => {
       capacity: event.capacity,
       totalInscriptions: event._count?.inscriptions || 0,
       remainingCapacity: event.capacity - (event._count?.inscriptions || 0),
+      createdAt: event.createdAt?.toISOString() || new Date().toISOString(),
+      updatedAt: event.updatedAt?.toISOString() || new Date().toISOString(),
     }));
 
     res.json({
@@ -60,6 +62,8 @@ router.get("/:id", validateId, async (req: Request, res, next) => {
       capacity: event.capacity,
       totalInscriptions: event._count?.inscriptions || 0,
       remainingCapacity: event.capacity - (event._count?.inscriptions || 0),
+      createdAt: event.createdAt?.toISOString() || new Date().toISOString(),
+      updatedAt: event.updatedAt?.toISOString() || new Date().toISOString(),
       inscriptions: event.inscriptions || [],
     };
 
