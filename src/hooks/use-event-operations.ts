@@ -1,29 +1,23 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { api, ApiResponse } from "@/lib/api";
-import { EventFormData } from "@/schemas/event";
-import { Event, EventDetail } from "@/types/event";
+import { api } from "@/lib/api";
 
-/**
- * Hook customizado para operações de eventos
- * Seguindo o princípio Single Responsibility (SRP)
- */
 export function useEventOperations() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
-  /**
-   * Cria um novo evento
-   */
-  const createEvent = async (data: EventFormData) => {
+  const createEvent = async (data: {
+    title: string;
+    description?: string;
+    capacity: string;
+    status: string;
+  }) => {
     setLoading(true);
     try {
-      const response = await api.post<
-        ApiResponse<{ message: string; data: Event }>
-      >("/api/events", {
+      const response = await api.createEvent({
         title: data.title,
-        description: data.description || null,
+        description: data.description || undefined,
         capacity: parseInt(data.capacity),
         status: data.status,
       });
@@ -43,21 +37,23 @@ export function useEventOperations() {
     }
   };
 
-  /**
-   * Atualiza um evento existente
-   */
-  const updateEvent = async (eventId: number, data: EventFormData) => {
+  const updateEvent = async (
+    eventId: number,
+    data: {
+      title: string;
+      description?: string;
+      capacity: string;
+      status: string;
+    }
+  ) => {
     setLoading(true);
     try {
-      const response = await api.patch<ApiResponse<EventDetail>>(
-        `/events/${eventId}`,
-        {
-          title: data.title,
-          description: data.description || null,
-          capacity: parseInt(data.capacity),
-          status: data.status,
-        }
-      );
+      const response = await api.updateEvent(eventId, {
+        title: data.title,
+        description: data.description || undefined,
+        capacity: parseInt(data.capacity),
+        status: data.status,
+      });
 
       if (response.success) {
         toast.success("Evento atualizado com sucesso!");
@@ -74,15 +70,14 @@ export function useEventOperations() {
     }
   };
 
-  /**
-   * Exclui um evento
-   */
   const deleteEvent = async (eventId: number, onSuccess?: () => void) => {
     try {
       const response = await api.deleteEvent(eventId);
       if (response.success) {
         toast.success("Evento excluído com sucesso!");
-        onSuccess?.();
+        if (onSuccess) {
+          onSuccess();
+        }
         router.push("/");
         return { success: true };
       }
@@ -94,10 +89,7 @@ export function useEventOperations() {
     }
   };
 
-  /**
-   * Carrega um evento por ID
-   */
-  const loadEvent = async (eventId: number): Promise<EventDetail | null> => {
+  const loadEvent = async (eventId: number) => {
     try {
       const response = await api.getEvent(eventId);
       if (response.success) {

@@ -5,10 +5,7 @@ interface EventStatusBadgeProps {
   status: EventStatus;
 }
 
-/**
- * Componente reutilizável para exibir o status de um evento
- * Seguindo o princípio Single Responsibility (SRP)
- */
+
 export function EventStatusBadge({ status }: EventStatusBadgeProps) {
   const statusInfo = getEventStatusInfo(status);
 

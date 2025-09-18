@@ -5,10 +5,7 @@ interface EventCapacityInfoProps {
   totalCapacity: number;
 }
 
-/**
- * Componente reutilizável para exibir informações de capacidade do evento
- * Seguindo o princípio Single Responsibility (SRP)
- */
+
 export function EventCapacityInfo({
   remainingCapacity,
   totalCapacity,

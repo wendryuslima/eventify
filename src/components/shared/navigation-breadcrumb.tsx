@@ -6,10 +6,7 @@ interface NavigationBreadcrumbProps {
   text: string;
 }
 
-/**
- * Componente reutilizável para breadcrumb de navegação
- * Seguindo o princípio Single Responsibility (SRP)
- */
+
 export function NavigationBreadcrumb({
   href,
   text,

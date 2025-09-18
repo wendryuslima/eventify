@@ -28,10 +28,7 @@ interface EventFormProps {
   cancelText?: string;
 }
 
-/**
- * Componente reutilizável para formulário de evento
- * Seguindo o princípio Single Responsibility (SRP)
- */
+
 export function EventForm({
   form,
   onSubmit,

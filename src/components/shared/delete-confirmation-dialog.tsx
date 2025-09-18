@@ -20,10 +20,7 @@ interface DeleteConfirmationDialogProps {
   cancelText?: string;
 }
 
-/**
- * Componente reutilizável para confirmação de exclusão
- * Seguindo o princípio Single Responsibility (SRP)
- */
+
 export function DeleteConfirmationDialog({
   title,
   description,
