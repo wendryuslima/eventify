@@ -3,13 +3,12 @@ import cors from "cors";
 import dotenv from "dotenv";
 import { eventRoutes } from "./routes/events";
 import { inscriptionRoutes } from "./routes/inscriptions";
-
+import { auditRoutes } from "./routes/audit";
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3001;
-
 
 app.use(
   cors({
@@ -17,18 +16,15 @@ app.use(
   })
 );
 
-
 app.use(express.json());
-
 
 app.get("/health", (req, res) => {
   res.json({ status: "OK" });
 });
 
-
 app.use("/api/events", eventRoutes);
 app.use("/api/events", inscriptionRoutes);
-
+app.use("/api/audit", auditRoutes);
 
 app.use(
   (
@@ -41,7 +37,6 @@ app.use(
     res.status(500).json({ error: "Erro interno do servidor" });
   }
 );
-
 
 app.use((req, res) => {
   res.status(404).json({ error: "Rota não encontrada" });

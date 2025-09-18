@@ -32,6 +32,20 @@ model Inscription {
   @@unique([eventId, phone])
 }
 
+model AuditLog {
+  id         Int      @id @default(autoincrement())
+  action     String   // "EVENT_CREATED", "EVENT_UPDATED", "EVENT_DELETED", "INSCRIPTION_CREATED", "INSCRIPTION_CANCELLED", "INSCRIPTION_UPDATED"
+  entityType String   // "Event", "Inscription"
+  entityId   Int      // ID do evento ou inscrição
+  userId     String?  // null (sem sistema de login)
+  userIp     String?  // IP do usuário
+  details    Json     // Dados da operação
+  timestamp  DateTime @default(now())
+
+  @@index([action])
+  @@index([entityType])
+  @@index([timestamp])
+}
 
 enum EventStatus {
   ACTIVE

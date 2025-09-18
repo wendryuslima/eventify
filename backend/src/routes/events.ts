@@ -1,5 +1,6 @@
 import { Router, Request, Response } from "express";
 import { prisma } from "../services/database";
+import { AuditService } from "../services/audit";
 
 const router = Router();
 
@@ -145,6 +146,17 @@ router.post("/", async (req, res) => {
       },
     });
 
+   
+    await AuditService.logEventCreated(
+      newEvent.id,
+      {
+        title: newEvent.title,
+        capacity: newEvent.capacity,
+        status: newEvent.status,
+      },
+      req.ip || "unknown"
+    );
+
     res.status(201).json({
       success: true,
       message: "Evento criado com sucesso!",
@@ -181,7 +193,6 @@ router.patch("/:id", async (req, res) => {
       });
     }
 
-    
     const existingEvent = await prisma.event.findUnique({
       where: { id: eventId },
     });
@@ -246,6 +257,22 @@ router.patch("/:id", async (req, res) => {
       },
     });
 
+   
+    await AuditService.logEventUpdated(
+      eventId,
+      {
+        title: existingEvent.title,
+        capacity: existingEvent.capacity,
+        status: existingEvent.status,
+      },
+      {
+        title: updatedEvent.title,
+        capacity: updatedEvent.capacity,
+        status: updatedEvent.status,
+      },
+      req.ip || "unknown"
+    );
+
     res.json({
       success: true,
       message: "Evento atualizado com sucesso!",
@@ -296,6 +323,17 @@ router.delete("/:id", async (req, res) => {
     await prisma.event.delete({
       where: { id: eventId },
     });
+
+
+    await AuditService.logEventDeleted(
+      eventId,
+      {
+        title: existingEvent.title,
+        capacity: existingEvent.capacity,
+        status: existingEvent.status,
+      },
+      req.ip || "unknown"
+    );
 
     res.json({
       success: true,

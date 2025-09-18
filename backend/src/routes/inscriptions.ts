@@ -1,94 +1,64 @@
 import { Router, Request, Response } from "express";
 import { prisma } from "../services/database";
+import { AuditService } from "../services/audit";
 
 const router = Router();
 
-router.post("/:id/inscriptions", async (req, res) => {
+const parseId = (id: string) => {
+  const parsed = parseInt(id);
+  return isNaN(parsed) || parsed <= 0 ? null : parsed;
+};
+
+const validateField = (field: string | undefined) =>
+  field && field.trim() !== "" ? field.trim() : null;
+
+router.post("/:id/inscriptions", async (req: Request, res: Response) => {
   try {
-    const eventId = parseInt(req.params.id);
-    const { name, phone } = req.body;
+    const eventId = parseId(req.params.id || "");
+    const name = validateField(req.body.name);
+    const phone = validateField(req.body.phone);
 
-    if (isNaN(eventId) || eventId <= 0) {
-      return res.status(400).json({
-        error: "ID inválido",
-        message: "O ID do evento deve ser um número válido",
-      });
-    }
-
-    if (!name || name.trim() === "") {
-      return res.status(400).json({
-        error: "Nome obrigatório",
-        message: "O nome é obrigatório",
-      });
-    }
-
-    if (!phone || phone.trim() === "") {
-      return res.status(400).json({
-        error: "Telefone obrigatório",
-        message: "O telefone é obrigatório",
-      });
-    }
+    if (!eventId || !name || !phone)
+      return res
+        .status(400)
+        .json({ success: false, message: "Campos inválidos" });
 
     const event = await prisma.event.findUnique({
       where: { id: eventId },
-      include: {
-        _count: {
-          select: {
-            inscriptions: true,
-          },
-        },
-      },
+      include: { _count: { select: { inscriptions: true } } },
     });
 
-    if (!event) {
-      return res.status(404).json({
-        error: "Evento não encontrado",
-        message: "Não existe evento com este ID",
-      });
-    }
+    if (!event)
+      return res
+        .status(404)
+        .json({ success: false, message: "Evento não encontrado" });
+    if (event.status !== "ACTIVE")
+      return res
+        .status(400)
+        .json({ success: false, message: "Evento inativo" });
+    if (event._count.inscriptions >= event.capacity)
+      return res
+        .status(409)
+        .json({ success: false, message: "Evento esgotado" });
 
-    if (event.status !== "ACTIVE") {
-      return res.status(400).json({
-        error: "Evento inativo",
-        message: "Este evento não está ativo para inscrições",
-      });
-    }
-
-    if (event._count.inscriptions >= event.capacity) {
-      return res.status(409).json({
-        error: "Evento esgotado",
-        message: "Não há mais vagas disponíveis para este evento",
-      });
-    }
-
-    const existingInscription = await prisma.inscription.findFirst({
-      where: {
-        eventId: eventId,
-        phone: phone.trim(),
-      },
+    const exists = await prisma.inscription.findFirst({
+      where: { eventId, phone },
     });
-
-    if (existingInscription) {
-      return res.status(409).json({
-        error: "Inscrição duplicada",
-        message: "Você já está inscrito neste evento",
-      });
-    }
+    if (exists)
+      return res
+        .status(409)
+        .json({ success: false, message: "Inscrição duplicada" });
 
     const newInscription = await prisma.inscription.create({
-      data: {
-        name: name.trim(),
-        phone: phone.trim(),
-        eventId: eventId,
-      },
-      include: {
-        event: {
-          select: {
-            title: true,
-          },
-        },
-      },
+      data: { name, phone, eventId },
+      include: { event: { select: { title: true } } },
     });
+
+    await AuditService.logInscriptionCreated(
+      newInscription.id,
+      { name, phone, eventId },
+      req.ip || "unknown"
+    );
 
     res.status(201).json({
       success: true,
@@ -102,231 +72,156 @@ router.post("/:id/inscriptions", async (req, res) => {
         createdAt: newInscription.createdAt.toISOString(),
       },
     });
-  } catch (error) {
-    console.error("Erro ao criar inscrição:", error);
-    res.status(500).json({
-      error: "Erro interno do servidor",
-      message: "Não foi possível realizar a inscrição",
-    });
+  } catch {
+    res
+      .status(500)
+      .json({ success: false, message: "Erro ao criar inscrição" });
   }
 });
 
-router.delete("/:id/inscriptions", async (req, res) => {
+router.delete("/:id/inscriptions", async (req: Request, res: Response) => {
   try {
-    const eventId = parseInt(req.params.id);
-    const { phone } = req.body;
+    const eventId = parseId(req.params.id || "");
+    const phone = validateField(req.body.phone);
 
-    if (isNaN(eventId) || eventId <= 0) {
-      return res.status(400).json({
-        error: "ID inválido",
-        message: "O ID do evento deve ser um número válido",
-      });
-    }
-
-    if (!phone || phone.trim() === "") {
-      return res.status(400).json({
-        error: "Telefone obrigatório",
-        message: "O telefone é obrigatório para cancelar a inscrição",
-      });
-    }
+    if (!eventId || !phone)
+      return res
+        .status(400)
+        .json({ success: false, message: "Campos inválidos" });
 
     const inscription = await prisma.inscription.findFirst({
-      where: {
-        eventId: eventId,
-        phone: phone.trim(),
-      },
+      where: { eventId, phone },
     });
+    if (!inscription)
+      return res
+        .status(404)
+        .json({ success: false, message: "Inscrição não encontrada" });
 
-    if (!inscription) {
-      return res.status(404).json({
-        error: "Inscrição não encontrada",
-        message:
-          "Não foi encontrada inscrição com este telefone para este evento",
-      });
-    }
+    await prisma.inscription.delete({ where: { id: inscription.id } });
+    await AuditService.logInscriptionCancelled(
+      inscription.id,
+      { name: inscription.name, phone, eventId },
+      req.ip || "unknown"
+    );
 
-    await prisma.inscription.delete({
-      where: {
-        id: inscription.id,
-      },
-    });
-
-    res.json({
-      success: true,
-      message: "Inscrição cancelada com sucesso!",
-    });
-  } catch (error) {
-    console.error("Erro ao cancelar inscrição:", error);
-    res.status(500).json({
-      error: "Erro interno do servidor",
-      message: "Não foi possível cancelar a inscrição",
-    });
+    res.json({ success: true, message: "Inscrição cancelada com sucesso!" });
+  } catch {
+    res
+      .status(500)
+      .json({ success: false, message: "Erro ao cancelar inscrição" });
   }
 });
 
-router.get("/:id/inscriptions", async (req, res) => {
+router.get("/:id/inscriptions", async (req: Request, res: Response) => {
   try {
-    const eventId = parseInt(req.params.id);
-
-    if (isNaN(eventId) || eventId <= 0) {
-      return res.status(400).json({
-        error: "ID inválido",
-        message: "O ID do evento deve ser um número válido",
-      });
-    }
+    const eventId = parseId(req.params.id || "");
+    if (!eventId)
+      return res.status(400).json({ success: false, message: "ID inválido" });
 
     const event = await prisma.event.findUnique({
       where: { id: eventId },
-      include: {
-        inscriptions: {
-          orderBy: {
-            createdAt: "desc",
-          },
-        },
-      },
+      include: { inscriptions: { orderBy: { createdAt: "desc" } } },
     });
 
-    if (!event) {
-      return res.status(404).json({
-        error: "Evento não encontrado",
-        message: "Não existe evento com este ID",
-      });
-    }
-
-    const result = {
-      event: {
-        id: event.id,
-        title: event.title,
-        capacity: event.capacity,
-        status: event.status,
-      },
-      inscriptions: event.inscriptions,
-      total: event.inscriptions.length,
-      remaining: event.capacity - event.inscriptions.length,
-    };
+    if (!event)
+      return res
+        .status(404)
+        .json({ success: false, message: "Evento não encontrado" });
 
     res.json({
       success: true,
-      data: result,
-    });
-  } catch (error) {
-    console.error("Erro ao buscar inscrições:", error);
-    res.status(500).json({
-      error: "Erro interno do servidor",
-      message: "Não foi possível buscar as inscrições",
-    });
-  }
-});
-
-router.patch("/:id/inscriptions/:inscriptionId", async (req, res) => {
-  try {
-    const eventId = parseInt(req.params.id);
-    const inscriptionId = parseInt(req.params.inscriptionId);
-    const { name, phone } = req.body;
-
-    if (isNaN(eventId) || eventId <= 0) {
-      return res.status(400).json({
-        error: "ID do evento inválido",
-        message: "O ID do evento deve ser um número válido",
-      });
-    }
-
-    if (isNaN(inscriptionId) || inscriptionId <= 0) {
-      return res.status(400).json({
-        error: "ID da inscrição inválido",
-        message: "O ID da inscrição deve ser um número válido",
-      });
-    }
-
-    const event = await prisma.event.findUnique({
-      where: { id: eventId },
-    });
-
-    if (!event) {
-      return res.status(404).json({
-        error: "Evento não encontrado",
-        message: "Não existe evento com este ID",
-      });
-    }
-
-    const existingInscription = await prisma.inscription.findFirst({
-      where: {
-        id: inscriptionId,
-        eventId: eventId,
-      },
-    });
-
-    if (!existingInscription) {
-      return res.status(404).json({
-        error: "Inscrição não encontrada",
-        message: "Não foi encontrada inscrição com este ID para este evento",
-      });
-    }
-
-    const updateData: { name?: string; phone?: string } = {};
-
-    if (name !== undefined) {
-      if (name.trim() === "") {
-        return res.status(400).json({
-          error: "Nome inválido",
-          message: "O nome não pode ser vazio",
-        });
-      }
-      updateData.name = name.trim();
-    }
-
-    if (phone !== undefined) {
-      if (phone.trim() === "") {
-        return res.status(400).json({
-          error: "Telefone inválido",
-          message: "O telefone não pode ser vazio",
-        });
-      }
-
-      const phoneExists = await prisma.inscription.findFirst({
-        where: {
-          eventId: eventId,
-          phone: phone.trim(),
-          id: { not: inscriptionId },
-        },
-      });
-
-      if (phoneExists) {
-        return res.status(409).json({
-          error: "Telefone em uso",
-          message:
-            "Já existe outro participante com este telefone neste evento",
-        });
-      }
-
-      updateData.phone = phone.trim();
-    }
-
-    const updatedInscription = await prisma.inscription.update({
-      where: { id: inscriptionId },
-      data: updateData,
-      include: {
+      data: {
         event: {
-          select: {
-            id: true,
-            title: true,
-          },
+          id: event.id,
+          title: event.title,
+          capacity: event.capacity,
+          status: event.status,
         },
+        inscriptions: event.inscriptions,
+        total: event.inscriptions.length,
+        remaining: event.capacity - event.inscriptions.length,
       },
     });
-
-    res.json({
-      success: true,
-      message: "Inscrição atualizada com sucesso!",
-      data: updatedInscription,
-    });
-  } catch (error) {
-    console.error("Erro ao atualizar inscrição:", error);
-    res.status(500).json({
-      error: "Erro interno do servidor",
-      message: "Não foi possível atualizar a inscrição",
-    });
+  } catch {
+    res
+      .status(500)
+      .json({ success: false, message: "Erro ao buscar inscrições" });
   }
 });
+
+router.patch(
+  "/:id/inscriptions/:inscriptionId",
+  async (req: Request, res: Response) => {
+    try {
+      const eventId = parseId(req.params.id || "");
+      const inscriptionId = parseId(req.params.inscriptionId || "");
+      const name = req.body.name?.trim();
+      const phone = req.body.phone?.trim();
+
+      if (!eventId || !inscriptionId)
+        return res
+          .status(400)
+          .json({ success: false, message: "IDs inválidos" });
+
+      const existingInscription = await prisma.inscription.findFirst({
+        where: { id: inscriptionId, eventId },
+      });
+      if (!existingInscription)
+        return res
+          .status(404)
+          .json({ success: false, message: "Inscrição não encontrada" });
+
+      if (name === "")
+        return res
+          .status(400)
+          .json({ success: false, message: "Nome inválido" });
+      if (phone === "")
+        return res
+          .status(400)
+          .json({ success: false, message: "Telefone inválido" });
+
+      if (phone) {
+        const phoneExists = await prisma.inscription.findFirst({
+          where: { eventId, phone, id: { not: inscriptionId } },
+        });
+        if (phoneExists)
+          return res
+            .status(409)
+            .json({ success: false, message: "Telefone em uso" });
+      }
+
+      const updatedInscription = await prisma.inscription.update({
+        where: { id: inscriptionId },
+        data: { ...(name && { name }), ...(phone && { phone }) },
+        include: { event: { select: { id: true, title: true } } },
+      });
+
+      await AuditService.logInscriptionUpdated(
+        inscriptionId,
+        {
+          name: existingInscription.name,
+          phone: existingInscription.phone,
+          eventId,
+        },
+        {
+          name: updatedInscription.name,
+          phone: updatedInscription.phone,
+          eventId,
+        },
+        req.ip || "unknown"
+      );
+
+      res.json({
+        success: true,
+        message: "Inscrição atualizada com sucesso!",
+        data: updatedInscription,
+      });
+    } catch {
+      res
+        .status(500)
+        .json({ success: false, message: "Erro ao atualizar inscrição" });
+    }
+  }
+);
 
 export { router as inscriptionRoutes };
