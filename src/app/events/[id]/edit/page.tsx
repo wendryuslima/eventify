@@ -19,7 +19,7 @@ import {
 import { useEventOperations } from "@/hooks/use-event-operations";
 import { eventFormSchema, EventFormData } from "@/schemas/event";
 
-export default function EditEventPage() {
+const EditEventPage = () => {
   const params = useParams();
   const eventId = params.id as string;
 
@@ -87,4 +87,6 @@ export default function EditEventPage() {
       </div>
     </div>
   );
-}
+};
+
+export default EditEventPage;

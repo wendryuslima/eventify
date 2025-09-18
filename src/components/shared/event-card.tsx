@@ -22,7 +22,7 @@ interface EventCardProps {
   onEventDeleted?: () => void;
 }
 
-export function EventCard({ event, onEventDeleted }: EventCardProps) {
+export const EventCard = ({ event, onEventDeleted }: EventCardProps) => {
   const { deleteEvent } = useEventOperations();
 
   const handleDeleteEvent = async () => {
@@ -93,4 +93,6 @@ export function EventCard({ event, onEventDeleted }: EventCardProps) {
       </CardContent>
     </Card>
   );
-}
+};
+
+

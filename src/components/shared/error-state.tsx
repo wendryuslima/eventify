@@ -8,13 +8,13 @@ interface ErrorStateProps {
   onBack?: () => void;
 }
 
-export function ErrorState({
+export const ErrorState = ({
   title = "Erro",
   message,
   onRetry,
   showBackButton = false,
   onBack,
-}: ErrorStateProps) {
+}: ErrorStateProps) => {
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center">
       <div className="text-center">
@@ -32,4 +32,6 @@ export function ErrorState({
       </div>
     </div>
   );
-}
+};
+
+

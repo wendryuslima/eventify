@@ -6,11 +6,10 @@ interface NavigationBreadcrumbProps {
   text: string;
 }
 
-
-export function NavigationBreadcrumb({
+export const NavigationBreadcrumb = ({
   href,
   text,
-}: NavigationBreadcrumbProps) {
+}: NavigationBreadcrumbProps) => {
   return (
     <div className="mb-6">
       <Link
@@ -22,4 +21,4 @@ export function NavigationBreadcrumb({
       </Link>
     </div>
   );
-}
+};

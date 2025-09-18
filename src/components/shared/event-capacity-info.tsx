@@ -5,11 +5,10 @@ interface EventCapacityInfoProps {
   totalCapacity: number;
 }
 
-
-export function EventCapacityInfo({
+export const EventCapacityInfo = ({
   remainingCapacity,
   totalCapacity,
-}: EventCapacityInfoProps) {
+}: EventCapacityInfoProps) => {
   return (
     <div className="flex items-center text-sm text-gray-600">
       <Users className="h-4 w-4 mr-1" />
@@ -18,4 +17,6 @@ export function EventCapacityInfo({
       </span>
     </div>
   );
-}
+};
+
+

@@ -37,11 +37,11 @@ interface InscriptionFormProps {
   submitting: boolean;
 }
 
-export function InscriptionForm({
+const InscriptionForm = ({
   event,
   onSubmit,
   submitting,
-}: InscriptionFormProps) {
+}: InscriptionFormProps) => {
   const {
     register,
     handleSubmit,
@@ -132,4 +132,6 @@ export function InscriptionForm({
       </CardContent>
     </Card>
   );
-}
+};
+
+export default InscriptionForm;

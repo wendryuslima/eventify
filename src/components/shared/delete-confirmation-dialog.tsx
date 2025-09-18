@@ -20,15 +20,14 @@ interface DeleteConfirmationDialogProps {
   cancelText?: string;
 }
 
-
-export function DeleteConfirmationDialog({
+export const DeleteConfirmationDialog = ({
   title,
   description,
   onConfirm,
   trigger,
   confirmText = "Excluir",
   cancelText = "Cancelar",
-}: DeleteConfirmationDialogProps) {
+}: DeleteConfirmationDialogProps) => {
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>{trigger}</AlertDialogTrigger>
@@ -49,4 +48,5 @@ export function DeleteConfirmationDialog({
       </AlertDialogContent>
     </AlertDialog>
   );
-}
+};
+

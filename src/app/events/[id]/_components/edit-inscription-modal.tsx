@@ -31,12 +31,12 @@ interface EditInscriptionModalProps {
   onSuccess: () => void;
 }
 
-export function EditInscriptionModal({
+const EditInscriptionModal = ({
   isOpen,
   onClose,
   inscription,
   onSuccess,
-}: EditInscriptionModalProps) {
+}: EditInscriptionModalProps) => {
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
@@ -135,4 +135,6 @@ export function EditInscriptionModal({
       </DialogContent>
     </Dialog>
   );
-}
+};
+
+export default EditInscriptionModal;

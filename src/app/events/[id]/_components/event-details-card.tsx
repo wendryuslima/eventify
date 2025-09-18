@@ -7,7 +7,7 @@ interface EventDetailsCardProps {
   event: EventDetail;
 }
 
-export function EventDetailsCard({ event }: EventDetailsCardProps) {
+const EventDetailsCard = ({ event }: EventDetailsCardProps) => {
   return (
     <Card>
       <CardHeader>
@@ -60,4 +60,5 @@ export function EventDetailsCard({ event }: EventDetailsCardProps) {
       </CardContent>
     </Card>
   );
-}
+};
+export default EventDetailsCard;

@@ -2,7 +2,7 @@ import { EventDetail } from "@/types/event";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Users, UserMinus, Edit } from "lucide-react";
-import { EditInscriptionModal } from "./edit-inscription-modal";
+import EditInscriptionModal from "./edit-inscription-modal";
 import { useState } from "react";
 
 interface ParticipantsListProps {
@@ -11,11 +11,11 @@ interface ParticipantsListProps {
   onInscriptionUpdated?: () => void;
 }
 
-export function ParticipantsList({
+const ParticipantsList = ({
   event,
   onCancelInscription,
   onInscriptionUpdated,
-}: ParticipantsListProps) {
+}: ParticipantsListProps) => {
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [selectedInscription, setSelectedInscription] = useState<{
     id: number;
@@ -102,4 +102,6 @@ export function ParticipantsList({
       />
     </Card>
   );
-}
+};
+
+export default ParticipantsList;

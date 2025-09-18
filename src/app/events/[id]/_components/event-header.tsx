@@ -15,11 +15,7 @@ interface EventHeaderProps {
   onEventDeleted?: () => void;
 }
 
-export function EventHeader({
-  event,
-  onBack,
-  onEventDeleted,
-}: EventHeaderProps) {
+const EventHeader = ({ event, onBack, onEventDeleted }: EventHeaderProps) => {
   const { deleteEvent } = useEventOperations();
 
   const handleDeleteEvent = async () => {
@@ -74,4 +70,6 @@ export function EventHeader({
       </div>
     </header>
   );
-}
+};
+
+export default EventHeader;

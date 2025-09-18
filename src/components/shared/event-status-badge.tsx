@@ -5,9 +5,8 @@ interface EventStatusBadgeProps {
   status: EventStatus;
 }
 
-
-export function EventStatusBadge({ status }: EventStatusBadgeProps) {
+export const EventStatusBadge = ({ status }: EventStatusBadgeProps) => {
   const statusInfo = getEventStatusInfo(status);
 
   return <Badge className={statusInfo.color}>{statusInfo.text}</Badge>;
-}
+};

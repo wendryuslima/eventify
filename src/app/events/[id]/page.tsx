@@ -18,7 +18,7 @@ type InscriptionFormData = {
   phone: string;
 };
 
-export default function EventDetailPage() {
+const EventDetailPage = () => {
   const params = useParams();
   const router = useRouter();
   const eventId = parseInt(params.id as string);
@@ -118,4 +118,6 @@ export default function EventDetailPage() {
       </main>
     </div>
   );
-}
+};
+
+export default EventDetailPage;

@@ -3,10 +3,10 @@ interface LoadingSpinnerProps {
   size?: "sm" | "md" | "lg";
 }
 
-export function LoadingSpinner({
+export const LoadingSpinner = ({
   message = "Carregando...",
   size = "md",
-}: LoadingSpinnerProps) {
+}: LoadingSpinnerProps) => {
   const sizeClasses = {
     sm: "h-6 w-6",
     md: "h-12 w-12",
@@ -23,4 +23,6 @@ export function LoadingSpinner({
       </div>
     </div>
   );
-}
+};
+
+

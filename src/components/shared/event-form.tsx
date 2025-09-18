@@ -28,15 +28,14 @@ interface EventFormProps {
   cancelText?: string;
 }
 
-
-export function EventForm({
+export const EventForm = ({
   form,
   onSubmit,
   loading,
   submitText = "Salvar",
   cancelHref = "/",
   cancelText = "Cancelar",
-}: EventFormProps) {
+}: EventFormProps) => {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -124,4 +123,6 @@ export function EventForm({
       </form>
     </Form>
   );
-}
+};
+
+
