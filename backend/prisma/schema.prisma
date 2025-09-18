@@ -30,13 +30,6 @@ model Inscription {
   @@unique([eventId, phone])
 }
 
-model AuditLog {
-  id        Int      @id @default(autoincrement())
-  action    String   // 'CREATE_EVENT', 'UPDATE_EVENT', 'DELETE_EVENT', 'INSCRIBE', 'CANCEL_INSCRIPTION'
-  entityId  Int?     // ID do evento ou inscrição
-  details   Json?    // Detalhes adicionais da ação
-  createdAt DateTime @default(now())
-}
 
 enum EventStatus {
   ACTIVE

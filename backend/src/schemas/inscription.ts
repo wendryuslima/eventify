@@ -1,39 +1,16 @@
 import { z } from "zod";
 
-const phoneRegex = /^\(\d{2}\)\s\d{4,5}-\d{4}$/;
-
 export const createInscriptionSchema = z.object({
-  name: z
-    .string()
-    .min(1, "Nome é obrigatório")
-    .max(100, "Nome deve ter no máximo 100 caracteres"),
-  phone: z
-    .string()
-    .min(1, "Telefone é obrigatório")
-    .regex(
-      phoneRegex,
-      "Telefone deve estar no formato (XX) XXXXX-XXXX ou (XX) XXXX-XXXX"
-    ),
+  name: z.string().min(1, "Nome é obrigatório"),
+  phone: z.string().min(1, "Telefone é obrigatório"),
 });
 
 export const cancelInscriptionSchema = z.object({
-  phone: z
-    .string()
-    .min(1, "Telefone é obrigatório")
-    .regex(
-      phoneRegex,
-      "Telefone deve estar no formato (XX) XXXXX-XXXX ou (XX) XXXX-XXXX"
-    ),
+  phone: z.string().min(1, "Telefone é obrigatório"),
 });
 
 export const inscriptionParamsSchema = z.object({
-  id: z.string().transform((val) => {
-    const num = parseInt(val, 10);
-    if (isNaN(num) || num <= 0) {
-      throw new Error("ID deve ser um número positivo");
-    }
-    return num;
-  }),
+  id: z.string(),
 });
 
 export type CreateInscriptionInput = z.infer<typeof createInscriptionSchema>;

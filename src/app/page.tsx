@@ -22,16 +22,22 @@ export default function Home() {
       const response = await api.getEvents();
       setEvents(response.data);
     } catch (err) {
-      if (err instanceof ApiError) {
-        setError(err.message);
-        toast.error("Erro ao carregar eventos: " + err.message);
-      } else {
-        setError("Erro inesperado");
-        toast.error("Erro inesperado ao carregar eventos");
-      }
+      console.error("Erro ao carregar eventos:", err);
+      setError("Erro ao carregar eventos");
+      toast.error("Erro ao carregar eventos");
     } finally {
       setLoading(false);
     }
+  };
+
+  const getStatusColor = (status: string) => {
+    return status === "ACTIVE"
+      ? "bg-green-100 text-green-800"
+      : "bg-gray-100 text-gray-800";
+  };
+
+  const getStatusText = (status: string) => {
+    return status === "ACTIVE" ? "Ativo" : "Inativo";
   };
 
   if (loading) {

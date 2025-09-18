@@ -36,13 +36,6 @@ app.use(
     console.error("Error:", err);
 
     if (err instanceof Error) {
-      if (err.name === "ValidationError") {
-        return res.status(400).json({
-          error: "Validation Error",
-          message: err.message,
-        });
-      }
-
       return res.status(500).json({
         error: "Internal Server Error",
         message: err.message,
