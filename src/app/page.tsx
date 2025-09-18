@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Event } from "@/types/event";
-import { api, ApiError } from "@/lib/api";
+import { api } from "@/lib/api";
 import { LoadingSpinner, ErrorState, EventCard } from "@/components/shared";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
@@ -59,7 +59,6 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center justify-between">
@@ -71,9 +70,8 @@ export default function Home() {
             </div>
             <div className="flex items-center gap-4">
               <div className="text-sm text-gray-500">
-                {events.length} evento{events.length !== 1 ? "s" : ""}{" "}
-                disponível
-                {events.length !== 1 ? "is" : ""}
+                {events.length} evento{events.length !== 1 ? "s" : ""} disponíve
+                {events.length !== 1 ? "is" : "l"}
               </div>
               <Link href="/events/create">
                 <Button className="flex items-center gap-2">
@@ -86,7 +84,6 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {events.length === 0 ? (
           <div className="text-center py-12">
