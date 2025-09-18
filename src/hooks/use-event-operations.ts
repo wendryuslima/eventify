@@ -29,7 +29,6 @@ export function useEventOperations() {
       }
       return { success: false };
     } catch (error) {
-      console.error("Erro ao criar evento:", error);
       toast.error("Erro ao criar evento. Tente novamente.");
       return { success: false, error };
     } finally {
@@ -62,7 +61,6 @@ export function useEventOperations() {
       }
       return { success: false };
     } catch (error) {
-      console.error("Erro ao atualizar evento:", error);
       toast.error("Erro ao atualizar evento. Tente novamente.");
       return { success: false, error };
     } finally {
@@ -83,7 +81,6 @@ export function useEventOperations() {
       }
       return { success: false };
     } catch (error) {
-      console.error("Erro ao excluir evento:", error);
       toast.error("Erro ao excluir evento. Tente novamente.");
       return { success: false, error };
     }
@@ -97,7 +94,6 @@ export function useEventOperations() {
       }
       return null;
     } catch (error) {
-      console.error("Erro ao carregar evento:", error);
       toast.error("Erro ao carregar evento");
       return null;
     }

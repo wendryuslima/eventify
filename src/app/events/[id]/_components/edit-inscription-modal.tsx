@@ -1,12 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 import { toast } from "sonner";
-import { api, ApiResponse } from "@/lib/api";
+import { api } from "@/lib/api";
 import {
   Dialog,
   DialogContent,
@@ -43,15 +43,14 @@ export function EditInscriptionModal({
     phone: "",
   });
 
-  // Atualizar formData quando inscription mudar
-  useState(() => {
+  useEffect(() => {
     if (inscription) {
       setFormData({
         name: inscription.name,
         phone: inscription.phone,
       });
     }
-  });
+  }, [inscription]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -60,8 +59,9 @@ export function EditInscriptionModal({
     setLoading(true);
 
     try {
-      const response = await api.patch<ApiResponse<Inscription>>(
-        `/api/events/${inscription.eventId}/inscriptions/${inscription.id}`,
+      const response = await api.updateInscription(
+        inscription.eventId,
+        inscription.id,
         {
           name: formData.name,
           phone: formData.phone,
