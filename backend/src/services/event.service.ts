@@ -116,6 +116,64 @@ export class EventService {
       remaining: event.capacity - event.inscriptions.length,
     };
   }
+
+  async updateInscription(
+    eventId: number,
+    inscriptionId: number,
+    data: { name?: string; phone?: string }
+  ) {
+    // Verificar se o evento existe
+    const event = await prisma.event.findUnique({
+      where: { id: eventId },
+    });
+
+    if (!event) {
+      throw new Error("Evento não encontrado");
+    }
+
+    // Verificar se a inscrição existe
+    const existingInscription = await prisma.inscription.findFirst({
+      where: {
+        id: inscriptionId,
+        eventId: eventId,
+      },
+    });
+
+    if (!existingInscription) {
+      throw new Error("Inscrição não encontrada");
+    }
+
+    // Se está alterando o telefone, verificar se não existe outro com o mesmo telefone
+    if (data.phone && data.phone !== existingInscription.phone) {
+      const phoneExists = await prisma.inscription.findFirst({
+        where: {
+          eventId: eventId,
+          phone: data.phone,
+          id: { not: inscriptionId },
+        },
+      });
+
+      if (phoneExists) {
+        throw new Error("Telefone já está em uso neste evento");
+      }
+    }
+
+    // Atualizar a inscrição
+    const updatedInscription = await prisma.inscription.update({
+      where: { id: inscriptionId },
+      data,
+      include: {
+        event: {
+          select: {
+            id: true,
+            title: true,
+          },
+        },
+      },
+    });
+
+    return updatedInscription;
+  }
 }
 
 export const eventService = new EventService();

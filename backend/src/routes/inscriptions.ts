@@ -148,4 +148,83 @@ router.get(
   }
 );
 
+// Editar inscrição
+router.patch("/:id/inscriptions/:inscriptionId", async (req, res, next) => {
+  try {
+    const eventId = getEventId(req, res);
+    if (eventId === null) return;
+
+    const inscriptionId = parseInt(req.params.inscriptionId || "0");
+    if (isNaN(inscriptionId) || inscriptionId <= 0) {
+      res.status(400).json({
+        error: "Validation Error",
+        message: "ID da inscrição inválido",
+      });
+      return;
+    }
+
+    const { name, phone } = req.body;
+
+    // Validação simples
+    if (name !== undefined && (!name || name.trim() === "")) {
+      res.status(400).json({
+        error: "Validation Error",
+        message: "Nome não pode ser vazio",
+      });
+      return;
+    }
+
+    if (phone !== undefined && (!phone || phone.trim() === "")) {
+      res.status(400).json({
+        error: "Validation Error",
+        message: "Telefone não pode ser vazio",
+      });
+      return;
+    }
+
+    const updateData: {
+      name?: string;
+      phone?: string;
+    } = {};
+    if (name !== undefined) updateData.name = name.trim();
+    if (phone !== undefined) updateData.phone = phone.trim();
+
+    const inscription = await eventService.updateInscription(
+      eventId,
+      inscriptionId,
+      updateData
+    );
+
+    res.json({
+      success: true,
+      message: "Inscrição atualizada com sucesso!",
+      data: inscription,
+    });
+  } catch (error) {
+    if (error instanceof Error) {
+      const message = error.message;
+
+      if (
+        message === "Evento não encontrado" ||
+        message === "Inscrição não encontrada"
+      ) {
+        res.status(404).json({
+          error: "Not Found",
+          message,
+        });
+        return;
+      }
+
+      if (message === "Telefone já está em uso neste evento") {
+        res.status(409).json({
+          error: "Conflict",
+          message,
+        });
+        return;
+      }
+    }
+    next(error);
+  }
+});
+
 export { router as inscriptionRoutes };
