@@ -67,10 +67,7 @@ export default function EditEventPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-2xl mx-auto px-4 py-8">
-        <NavigationBreadcrumb
-          href={`/events/${eventId}`}
-          text="Voltar para o evento"
-        />
+        <NavigationBreadcrumb href="/" text="Voltar para eventos" />
 
         <Card>
           <CardHeader>
@@ -83,7 +80,7 @@ export default function EditEventPage() {
               onSubmit={onSubmit}
               loading={loading}
               submitText="Salvar Alterações"
-              cancelHref={`/events/${eventId}`}
+              cancelHref="/"
             />
           </CardContent>
         </Card>

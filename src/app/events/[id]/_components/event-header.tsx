@@ -30,15 +30,16 @@ export function EventHeader({
     <header className="bg-white shadow-sm border-b">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="flex items-center space-x-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onBack}
-            className="flex items-center space-x-2"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            <span>Voltar</span>
-          </Button>
+          <Link href="/">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="flex items-center space-x-2"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              <span>Voltar</span>
+            </Button>
+          </Link>
           <div className="flex-1">
             <h1 className="text-3xl font-bold text-gray-900">{event.title}</h1>
             <div className="flex items-center space-x-4 mt-2">

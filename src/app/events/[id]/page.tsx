@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { EventDetail } from "@/types/event";
-import { api, ApiError } from "@/lib/api";
+import { api } from "@/lib/api";
 import { LoadingSpinner, ErrorState } from "@/components/shared";
 import {
   EventHeader,
@@ -26,22 +26,14 @@ export default function EventDetailPage() {
   const [event, setEvent] = useState<EventDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   const loadEvent = useCallback(async () => {
     try {
       setLoading(true);
-      setError(null);
       const response = await api.getEvent(eventId);
       setEvent(response.data);
     } catch (err) {
-      if (err instanceof ApiError) {
-        setError(err.message);
-        toast.error("Erro ao carregar evento: " + err.message);
-      } else {
-        setError("Erro inesperado");
-        toast.error("Erro inesperado ao carregar evento");
-      }
+      toast.error("Erro ao carregar evento");
     } finally {
       setLoading(false);
     }
@@ -63,11 +55,7 @@ export default function EventDetailPage() {
       loadEvent(); // Recarregar dados do evento
     } catch (err) {
       console.error("Erro na inscrição:", err);
-      if (err instanceof ApiError) {
-        toast.error("Erro na inscrição: " + err.message);
-      } else {
-        toast.error("Erro inesperado na inscrição");
-      }
+      toast.error("Erro na inscrição");
     } finally {
       setSubmitting(false);
     }
@@ -77,15 +65,11 @@ export default function EventDetailPage() {
     if (!event) return;
 
     try {
-      await api.cancelInscription(eventId, { phone });
+      await api.cancelInscription(eventId, phone);
       toast.success("Inscrição cancelada com sucesso!");
       loadEvent();
     } catch (err) {
-      if (err instanceof ApiError) {
-        toast.error("Erro ao cancelar inscrição: " + err.message);
-      } else {
-        toast.error("Erro inesperado ao cancelar inscrição");
-      }
+      toast.error("Erro ao cancelar inscrição");
     }
   };
 
@@ -93,14 +77,14 @@ export default function EventDetailPage() {
     return <LoadingSpinner message="Carregando evento..." />;
   }
 
-  if (error || !event) {
+  if (!event) {
     return (
       <ErrorState
-        title="Erro ao carregar evento"
-        message={error || "Evento não encontrado"}
+        title="Evento não encontrado"
+        message="O evento solicitado não foi encontrado"
         onRetry={loadEvent}
         showBackButton={true}
-        onBack={() => router.back()}
+        onBack={() => router.push("/")}
       />
     );
   }
@@ -109,7 +93,7 @@ export default function EventDetailPage() {
     <div className="min-h-screen bg-gray-50">
       <EventHeader
         event={event}
-        onBack={() => router.back()}
+        onBack={() => router.push("/")}
         onEventDeleted={() => router.push("/")}
       />
 
