@@ -1,6 +1,10 @@
 import { Router, Request, Response } from "express";
 import { prisma } from "../services/database";
 import { AuditService } from "../services/audit";
+import {
+  emitInscriptionEvent,
+  emitCancellationEvent,
+} from "../services/socket";
 
 const router = Router();
 
@@ -18,36 +22,41 @@ router.post("/:id/inscriptions", async (req: Request, res: Response) => {
     const name = validateField(req.body.name);
     const phone = validateField(req.body.phone);
 
-    if (!eventId || !name || !phone)
+    if (!eventId || !name || !phone) {
       return res
         .status(400)
         .json({ success: false, message: "Campos inválidos" });
+    }
 
     const event = await prisma.event.findUnique({
       where: { id: eventId },
       include: { _count: { select: { inscriptions: true } } },
     });
 
-    if (!event)
+    if (!event) {
       return res
         .status(404)
         .json({ success: false, message: "Evento não encontrado" });
-    if (event.status !== "ACTIVE")
+    }
+    if (event.status !== "ACTIVE") {
       return res
         .status(400)
         .json({ success: false, message: "Evento inativo" });
-    if (event._count.inscriptions >= event.capacity)
+    }
+    if (event._count.inscriptions >= event.capacity) {
       return res
         .status(409)
         .json({ success: false, message: "Evento esgotado" });
+    }
 
     const exists = await prisma.inscription.findFirst({
       where: { eventId, phone },
     });
-    if (exists)
+    if (exists) {
       return res
         .status(409)
         .json({ success: false, message: "Inscrição duplicada" });
+    }
 
     const newInscription = await prisma.inscription.create({
       data: { name, phone, eventId },
@@ -59,6 +68,23 @@ router.post("/:id/inscriptions", async (req: Request, res: Response) => {
       { name, phone, eventId },
       req.ip || "unknown"
     );
+
+    const updatedEvent = await prisma.event.findUnique({
+      where: { id: eventId },
+      include: { _count: { select: { inscriptions: true } } },
+    });
+
+    if (updatedEvent) {
+      emitInscriptionEvent({
+        eventId,
+        eventTitle: updatedEvent.title,
+        participantName: name,
+        participantPhone: phone,
+        remainingCapacity:
+          updatedEvent.capacity - updatedEvent._count.inscriptions,
+        totalInscriptions: updatedEvent._count.inscriptions,
+      });
+    }
 
     res.status(201).json({
       success: true,
@@ -84,18 +110,20 @@ router.delete("/:id/inscriptions", async (req: Request, res: Response) => {
     const eventId = parseId(req.params.id || "");
     const phone = validateField(req.body.phone);
 
-    if (!eventId || !phone)
+    if (!eventId || !phone) {
       return res
         .status(400)
         .json({ success: false, message: "Campos inválidos" });
+    }
 
     const inscription = await prisma.inscription.findFirst({
       where: { eventId, phone },
     });
-    if (!inscription)
+    if (!inscription) {
       return res
         .status(404)
         .json({ success: false, message: "Inscrição não encontrada" });
+    }
 
     await prisma.inscription.delete({ where: { id: inscription.id } });
     await AuditService.logInscriptionCancelled(
@@ -103,6 +131,23 @@ router.delete("/:id/inscriptions", async (req: Request, res: Response) => {
       { name: inscription.name, phone, eventId },
       req.ip || "unknown"
     );
+
+    const updatedEvent = await prisma.event.findUnique({
+      where: { id: eventId },
+      include: { _count: { select: { inscriptions: true } } },
+    });
+
+    if (updatedEvent) {
+      emitCancellationEvent({
+        eventId,
+        eventTitle: updatedEvent.title,
+        participantName: inscription.name,
+        participantPhone: phone,
+        remainingCapacity:
+          updatedEvent.capacity - updatedEvent._count.inscriptions,
+        totalInscriptions: updatedEvent._count.inscriptions,
+      });
+    }
 
     res.json({ success: true, message: "Inscrição cancelada com sucesso!" });
   } catch {
@@ -115,18 +160,20 @@ router.delete("/:id/inscriptions", async (req: Request, res: Response) => {
 router.get("/:id/inscriptions", async (req: Request, res: Response) => {
   try {
     const eventId = parseId(req.params.id || "");
-    if (!eventId)
+    if (!eventId) {
       return res.status(400).json({ success: false, message: "ID inválido" });
+    }
 
     const event = await prisma.event.findUnique({
       where: { id: eventId },
       include: { inscriptions: { orderBy: { createdAt: "desc" } } },
     });
 
-    if (!event)
+    if (!event) {
       return res
         .status(404)
         .json({ success: false, message: "Evento não encontrado" });
+    }
 
     res.json({
       success: true,
@@ -158,36 +205,41 @@ router.patch(
       const name = req.body.name?.trim();
       const phone = req.body.phone?.trim();
 
-      if (!eventId || !inscriptionId)
+      if (!eventId || !inscriptionId) {
         return res
           .status(400)
           .json({ success: false, message: "IDs inválidos" });
+      }
 
       const existingInscription = await prisma.inscription.findFirst({
         where: { id: inscriptionId, eventId },
       });
-      if (!existingInscription)
+      if (!existingInscription) {
         return res
           .status(404)
           .json({ success: false, message: "Inscrição não encontrada" });
+      }
 
-      if (name === "")
+      if (name === "") {
         return res
           .status(400)
           .json({ success: false, message: "Nome inválido" });
-      if (phone === "")
+      }
+      if (phone === "") {
         return res
           .status(400)
           .json({ success: false, message: "Telefone inválido" });
+      }
 
       if (phone) {
         const phoneExists = await prisma.inscription.findFirst({
           where: { eventId, phone, id: { not: inscriptionId } },
         });
-        if (phoneExists)
+        if (phoneExists) {
           return res
             .status(409)
             .json({ success: false, message: "Telefone em uso" });
+        }
       }
 
       const updatedInscription = await prisma.inscription.update({

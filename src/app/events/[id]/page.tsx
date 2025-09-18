@@ -12,16 +12,19 @@ import {
   InscriptionForm,
 } from "./_components";
 import { toast } from "sonner";
+import { useSocket } from "@/hooks/use-socket";
 
 type InscriptionFormData = {
   name: string;
   phone: string;
 };
 
-const EventDetailPage = () => {
+export default function EventDetailPage() {
   const params = useParams();
   const router = useRouter();
+
   const eventId = parseInt(params.id as string);
+  const socket = useSocket();
 
   const [event, setEvent] = useState<EventDetail | null>(null);
   const [loading, setLoading] = useState(true);
@@ -30,48 +33,58 @@ const EventDetailPage = () => {
   const loadEvent = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await api.getEvent(eventId);
-      setEvent(response.data);
-    } catch (err) {
+      const res = await api.getEvent(eventId);
+      setEvent(res.data);
+    } catch {
       toast.error("Erro ao carregar evento");
     } finally {
       setLoading(false);
     }
   }, [eventId]);
 
-  useEffect(() => {
-    if (eventId) {
-      loadEvent();
-    }
-  }, [eventId, loadEvent]);
-
-  const onSubmit = async (data: InscriptionFormData) => {
+  async function handleInscription(data: InscriptionFormData) {
     if (!event) return;
 
     try {
       setSubmitting(true);
       await api.createInscription(eventId, data);
       toast.success("Inscrição realizada com sucesso!");
-      loadEvent(); // Recarregar dados do evento
+      loadEvent();
     } catch (err) {
       console.error("Erro na inscrição:", err);
       toast.error("Erro na inscrição");
     } finally {
       setSubmitting(false);
     }
-  };
+  }
 
-  const handleCancelInscription = async (phone: string) => {
+  async function handleCancel(phone: string) {
     if (!event) return;
 
     try {
       await api.cancelInscription(eventId, phone);
       toast.success("Inscrição cancelada com sucesso!");
       loadEvent();
-    } catch (err) {
+    } catch {
       toast.error("Erro ao cancelar inscrição");
     }
-  };
+  }
+
+  useEffect(() => {
+    loadEvent();
+  }, [loadEvent]);
+
+  useEffect(() => {
+    if (socket.isConnected) {
+      socket.joinEventRoom(eventId);
+      socket.onEventUpdate(loadEvent);
+
+      return () => {
+        socket.leaveEventRoom(eventId);
+        socket.offEventUpdate(loadEvent);
+      };
+    }
+  }, [eventId, socket, loadEvent]);
 
   if (loading) {
     return <LoadingSpinner message="Carregando evento..." />;
@@ -103,14 +116,14 @@ const EventDetailPage = () => {
             <EventDetailsCard event={event} />
             <ParticipantsList
               event={event}
-              onCancelInscription={handleCancelInscription}
+              onCancelInscription={handleCancel}
               onInscriptionUpdated={loadEvent}
             />
           </div>
           <div>
             <InscriptionForm
               event={event}
-              onSubmit={onSubmit}
+              onSubmit={handleInscription}
               submitting={submitting}
             />
           </div>
@@ -118,6 +131,4 @@ const EventDetailPage = () => {
       </main>
     </div>
   );
-};
-
-export default EventDetailPage;
+}

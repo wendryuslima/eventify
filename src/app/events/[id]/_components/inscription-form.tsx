@@ -108,12 +108,13 @@ const InscriptionForm = ({
                     format="(##) #####-####"
                     mask="_"
                     placeholder="(11) 99999-9999"
-                    value={field.value}
+                    value={field.value || ""}
                     onValueChange={(values) => {
                       field.onChange(values.formattedValue);
                     }}
                     customInput={Input}
                     className="mt-1"
+                    allowEmptyFormatting={false}
                   />
                 )}
               />
@@ -134,4 +135,4 @@ const InscriptionForm = ({
   );
 };
 
-export default InscriptionForm;
+export { InscriptionForm };

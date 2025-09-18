@@ -48,17 +48,11 @@ const EventDetailsCard = ({ event }: EventDetailsCardProps) => {
             Data de Criação
           </Label>
           <p className="text-gray-600 mt-1">
-            {new Date(event.createdAt).toLocaleDateString("pt-BR", {
-              day: "2-digit",
-              month: "2-digit",
-              year: "numeric",
-              hour: "2-digit",
-              minute: "2-digit",
-            })}
+            {new Date(event.createdAt).toLocaleDateString("pt-BR")}
           </p>
         </div>
       </CardContent>
     </Card>
   );
 };
-export default EventDetailsCard;
+export { EventDetailsCard };

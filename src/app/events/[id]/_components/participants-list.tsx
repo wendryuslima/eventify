@@ -2,7 +2,7 @@ import { EventDetail } from "@/types/event";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Users, UserMinus, Edit } from "lucide-react";
-import EditInscriptionModal from "./edit-inscription-modal";
+import { EditInscriptionModal } from "./edit-inscription-modal";
 import { useState } from "react";
 
 interface ParticipantsListProps {
@@ -104,4 +104,4 @@ const ParticipantsList = ({
   );
 };
 
-export default ParticipantsList;
+export { ParticipantsList };

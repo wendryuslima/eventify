@@ -72,4 +72,4 @@ const EventHeader = ({ event, onBack, onEventDeleted }: EventHeaderProps) => {
   );
 };
 
-export default EventHeader;
+export { EventHeader };

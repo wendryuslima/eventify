@@ -137,4 +137,4 @@ const EditInscriptionModal = ({
   );
 };
 
-export default EditInscriptionModal;
+export { EditInscriptionModal };

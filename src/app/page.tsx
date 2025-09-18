@@ -8,14 +8,39 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
+import { useSocket } from "@/hooks/use-socket";
 
 export default function Home() {
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const socket = useSocket();
 
   useEffect(() => {
     loadEvents();
+  }, []);
+
+  useEffect(() => {
+    const handleEventsListUpdate = (data: {
+      eventId: number;
+      remainingCapacity: number;
+      totalInscriptions: number;
+      timestamp: string;
+    }) => {
+      setEvents((prevEvents) =>
+        prevEvents.map((event) =>
+          event.id === data.eventId
+            ? { ...event, remainingCapacity: data.remainingCapacity }
+            : event
+        )
+      );
+    };
+
+    socket.onEventsListUpdate(handleEventsListUpdate);
+
+    return () => {
+      socket.offEventsListUpdate(handleEventsListUpdate);
+    };
   }, []);
 
   const loadEvents = async () => {
