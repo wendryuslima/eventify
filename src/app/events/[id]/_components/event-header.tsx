@@ -1,22 +1,13 @@
 import { EventDetail } from "@/types/event";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { ArrowLeft, Users, Edit, Trash2 } from "lucide-react";
+import { ArrowLeft, Edit, Trash2 } from "lucide-react";
 import Link from "next/link";
-import { toast } from "sonner";
-import { api } from "@/lib/api";
-import { useRouter } from "next/navigation";
+import {
+  EventStatusBadge,
+  EventCapacityInfo,
+  DeleteConfirmationDialog,
+} from "@/components/shared";
+import { useEventOperations } from "@/hooks/use-event-operations";
 
 interface EventHeaderProps {
   event: EventDetail;
@@ -29,29 +20,10 @@ export function EventHeader({
   onBack,
   onEventDeleted,
 }: EventHeaderProps) {
-  const router = useRouter();
+  const { deleteEvent } = useEventOperations();
 
   const handleDeleteEvent = async () => {
-    try {
-      const response = await api.deleteEvent(event.id);
-      if (response.success) {
-        toast.success("Evento excluído com sucesso!");
-        onEventDeleted?.();
-        router.push("/");
-      }
-    } catch (error) {
-      console.error("Erro ao excluir evento:", error);
-      toast.error("Erro ao excluir evento. Tente novamente.");
-    }
-  };
-  const getStatusColor = (status: string) => {
-    return status === "ACTIVE"
-      ? "bg-green-100 text-green-800"
-      : "bg-gray-100 text-gray-800";
-  };
-
-  const getStatusText = (status: string) => {
-    return status === "ACTIVE" ? "Ativo" : "Inativo";
+    await deleteEvent(event.id, onEventDeleted);
   };
 
   return (
@@ -70,16 +42,11 @@ export function EventHeader({
           <div className="flex-1">
             <h1 className="text-3xl font-bold text-gray-900">{event.title}</h1>
             <div className="flex items-center space-x-4 mt-2">
-              <Badge className={getStatusColor(event.status)}>
-                {getStatusText(event.status)}
-              </Badge>
-              <div className="flex items-center text-sm text-gray-600">
-                <Users className="h-4 w-4 mr-1" />
-                <span>
-                  {event.remainingCapacity} de {event.capacity} vagas
-                  disponíveis
-                </span>
-              </div>
+              <EventStatusBadge status={event.status} />
+              <EventCapacityInfo
+                remainingCapacity={event.remainingCapacity}
+                totalCapacity={event.capacity}
+              />
             </div>
           </div>
           <div className="flex gap-2">
@@ -89,34 +56,18 @@ export function EventHeader({
                 Editar
               </Button>
             </Link>
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
+            <DeleteConfirmationDialog
+              title="Confirmar exclusão"
+              description={`Tem certeza que deseja excluir o evento "${event.title}"? Esta ação não pode ser desfeita e todos os dados relacionados ao evento serão permanentemente removidos.`}
+              onConfirm={handleDeleteEvent}
+              confirmText="Excluir Evento"
+              trigger={
                 <Button variant="outline" size="sm">
                   <Trash2 className="h-4 w-4 mr-2" />
                   Excluir
                 </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    Tem certeza que deseja excluir o evento &quot;{event.title}
-                    &quot;quot;{event.title}&quot;{event.title}&quot;quot;? Esta
-                    ação não pode ser desfeita e todos os dados relacionados ao
-                    evento serão permanentemente removidos.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                  <AlertDialogAction
-                    onClick={handleDeleteEvent}
-                    className="bg-red-600 hover:bg-red-700"
-                  >
-                    Excluir Evento
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
+              }
+            />
           </div>
         </div>
       </div>

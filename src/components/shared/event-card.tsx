@@ -6,12 +6,16 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar, Users, Edit, Trash2 } from "lucide-react";
+import { Calendar, Edit, Trash2 } from "lucide-react";
 import Link from "next/link";
-import { toast } from "sonner";
-import { api } from "@/lib/api";
+import {
+  EventStatusBadge,
+  EventCapacityInfo,
+  DeleteConfirmationDialog,
+} from "./index";
+import { getEventButtonText } from "@/lib/event-utils";
+import { useEventOperations } from "@/hooks/use-event-operations";
 
 interface EventCardProps {
   event: Event;
@@ -19,41 +23,10 @@ interface EventCardProps {
 }
 
 export function EventCard({ event, onEventDeleted }: EventCardProps) {
-  const getStatusColor = (status: string) => {
-    return status === "ACTIVE"
-      ? "bg-green-100 text-green-800"
-      : "bg-gray-100 text-gray-800";
-  };
-
-  const getStatusText = (status: string) => {
-    return status === "ACTIVE" ? "Ativo" : "Inativo";
-  };
-
-  const getButtonText = () => {
-    if (event.status !== "ACTIVE") return "Evento Inativo";
-    if (event.remainingCapacity === 0) return "Esgotado";
-    return "Ver Detalhes";
-  };
+  const { deleteEvent } = useEventOperations();
 
   const handleDeleteEvent = async () => {
-    if (
-      !confirm(
-        "Tem certeza que deseja excluir este evento? Esta ação não pode ser desfeita."
-      )
-    ) {
-      return;
-    }
-
-    try {
-      const response = await api.deleteEvent(event.id);
-      if (response.success) {
-        toast.success("Evento excluído com sucesso!");
-        onEventDeleted?.();
-      }
-    } catch (error) {
-      console.error("Erro ao excluir evento:", error);
-      toast.error("Erro ao excluir evento. Tente novamente.");
-    }
+    await deleteEvent(event.id, onEventDeleted);
   };
 
   return (
@@ -62,9 +35,7 @@ export function EventCard({ event, onEventDeleted }: EventCardProps) {
         <div className="flex items-start justify-between">
           <div className="flex-1">
             <CardTitle className="text-xl mb-2">{event.title}</CardTitle>
-            <Badge className={getStatusColor(event.status)}>
-              {getStatusText(event.status)}
-            </Badge>
+            <EventStatusBadge status={event.status} />
           </div>
           <div className="flex gap-2">
             <Link href={`/events/${event.id}/edit`}>
@@ -72,9 +43,16 @@ export function EventCard({ event, onEventDeleted }: EventCardProps) {
                 <Edit className="h-4 w-4" />
               </Button>
             </Link>
-            <Button variant="outline" size="sm" onClick={handleDeleteEvent}>
-              <Trash2 className="h-4 w-4" />
-            </Button>
+            <DeleteConfirmationDialog
+              title="Confirmar exclusão"
+              description={`Tem certeza que deseja excluir o evento "${event.title}"? Esta ação não pode ser desfeita.`}
+              onConfirm={handleDeleteEvent}
+              trigger={
+                <Button variant="outline" size="sm">
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              }
+            />
           </div>
         </div>
       </CardHeader>
@@ -87,12 +65,10 @@ export function EventCard({ event, onEventDeleted }: EventCardProps) {
         )}
 
         <div className="space-y-3">
-          <div className="flex items-center text-sm text-gray-600">
-            <Users className="h-4 w-4 mr-2" />
-            <span>
-              {event.remainingCapacity} de {event.capacity} vagas disponíveis
-            </span>
-          </div>
+          <EventCapacityInfo
+            remainingCapacity={event.remainingCapacity}
+            totalCapacity={event.capacity}
+          />
 
           <div className="flex items-center text-sm text-gray-600">
             <Calendar className="h-4 w-4 mr-2" />
@@ -110,7 +86,7 @@ export function EventCard({ event, onEventDeleted }: EventCardProps) {
                 event.status !== "ACTIVE" || event.remainingCapacity === 0
               }
             >
-              {getButtonText()}
+              {getEventButtonText(event.status, event.remainingCapacity)}
             </Button>
           </Link>
         </div>
