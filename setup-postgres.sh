@@ -10,8 +10,8 @@ if [ ! -f "backend/.env" ]; then
 DATABASE_URL="postgresql://eventify_user:eventify_password@localhost:5432/eventify?schema=public"
 
 # Server
-PORT=3000
-FRONTEND_URL="http://localhost:3001"
+PORT=3001
+FRONTEND_URL="http://localhost:3000"
 EOF
     echo "✅ Arquivo .env criado!"
 fi
