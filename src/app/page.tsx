@@ -74,7 +74,7 @@ export default function Home() {
               Encontre e participe de eventos incríveis
             </p>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex flex-col items-center gap-4">
             <div className="text-sm text-gray-500">
               {events?.length || 0} evento
               {(events?.length || 0) !== 1 ? "s" : ""} disponíve

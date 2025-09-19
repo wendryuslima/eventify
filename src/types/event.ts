@@ -1,4 +1,4 @@
-export type EventStatus = "ACTIVE" | "INACTIVE" | "CANCELLED";
+export type EventStatus = "ACTIVE" | "INACTIVE";
 
 export interface Event {
   id: number;

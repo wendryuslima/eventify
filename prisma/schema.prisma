@@ -42,7 +42,7 @@ model AuditLog {
   action     String
   entityType String
   entityId   Int
-  details    String   // JSON string
+  details    String   
   createdAt  DateTime @default(now())
 
   @@map("audit_logs")
@@ -51,5 +51,5 @@ model AuditLog {
 enum EventStatus {
   ACTIVE
   INACTIVE
-  CANCELLED
+ 
 }

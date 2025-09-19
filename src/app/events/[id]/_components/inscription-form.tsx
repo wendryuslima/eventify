@@ -24,14 +24,10 @@ const inscriptionSchema = z.object({
     .max(100, "Máximo 100 caracteres"),
   phone: z
     .string()
-    .min(1, "O telefone é obrigatório")
+    .min(1, "Telefone é obrigatório")
     .refine(
       (val) => val && val.replace(/\D/g, "").length >= 10,
-      "O telefone é obrigatório"
-    )
-    .refine(
-      (val) => val && /^\(\d{2}\)\s\d{4,5}-\d{4}$/.test(val),
-      "Telefone deve estar no formato (XX) XXXXX-XXXX"
+      "Telefone deve ter pelo menos 10 dígitos"
     ),
 });
 
