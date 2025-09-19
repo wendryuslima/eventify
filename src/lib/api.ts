@@ -1,9 +1,9 @@
-const API_URL = "http://localhost:3001";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "";
 
 export const api = {
   async getEvents() {
     try {
-      const response = await fetch(`${API_URL}/api/events`);
+      const response = await fetch(`${API_URL}/events`);
       const data = await response.json();
       return data;
     } catch (error) {
@@ -14,7 +14,7 @@ export const api = {
 
   async getEvent(id: number) {
     try {
-      const response = await fetch(`${API_URL}/api/events/${id}`);
+      const response = await fetch(`${API_URL}/events/${id}`);
       const data = await response.json();
       return data;
     } catch (error) {
@@ -30,7 +30,7 @@ export const api = {
     status?: string;
   }) {
     try {
-      const response = await fetch(`${API_URL}/api/events`, {
+      const response = await fetch(`${API_URL}/events`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -55,7 +55,7 @@ export const api = {
     }
   ) {
     try {
-      const response = await fetch(`${API_URL}/api/events/${id}`, {
+      const response = await fetch(`${API_URL}/events/${id}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -72,7 +72,7 @@ export const api = {
 
   async deleteEvent(id: number) {
     try {
-      const response = await fetch(`${API_URL}/api/events/${id}`, {
+      const response = await fetch(`${API_URL}/events/${id}`, {
         method: "DELETE",
       });
       const data = await response.json();
@@ -89,7 +89,7 @@ export const api = {
   ) {
     try {
       const response = await fetch(
-        `${API_URL}/api/events/${eventId}/inscriptions`,
+        `${API_URL}/events/${eventId}/inscriptions`,
         {
           method: "POST",
           headers: {
@@ -114,7 +114,7 @@ export const api = {
   async cancelInscription(eventId: number, phone: string) {
     try {
       const response = await fetch(
-        `${API_URL}/api/events/${eventId}/inscriptions`,
+        `${API_URL}/events/${eventId}/inscriptions`,
         {
           method: "DELETE",
           headers: {
@@ -156,7 +156,7 @@ export const api = {
   ) {
     try {
       const response = await fetch(
-        `${API_URL}/api/events/${eventId}/inscriptions/${inscriptionId}`,
+        `${API_URL}/events/${eventId}/inscriptions/${inscriptionId}`,
         {
           method: "PATCH",
           headers: {

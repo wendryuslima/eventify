@@ -1,0 +1,55 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Event {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String?
+  status      EventStatus @default(ACTIVE)
+  capacity    Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  inscriptions Inscription[]
+
+  @@map("events")
+}
+
+model Inscription {
+  id      Int    @id @default(autoincrement())
+  name    String
+  phone   String
+  eventId Int
+  createdAt DateTime @default(now())
+
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, phone], name: "eventId_phone")
+  @@map("inscriptions")
+}
+
+model AuditLog {
+  id         Int      @id @default(autoincrement())
+  action     String
+  entityType String
+  entityId   Int
+  details    String   // JSON string
+  createdAt  DateTime @default(now())
+
+  @@map("audit_logs")
+}
+
+enum EventStatus {
+  ACTIVE
+  INACTIVE
+  CANCELLED
+}
