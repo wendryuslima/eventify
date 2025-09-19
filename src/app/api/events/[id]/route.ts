@@ -10,18 +10,19 @@ const updateEventSchema = z.object({
   status: z.enum(["ACTIVE", "INACTIVE", "CANCELLED"]).optional(),
 });
 
-function parseEventId(params: { id: string }) {
-  const id = parseInt(params.id);
+async function parseEventId(params: Promise<{ id: string }>) {
+  const resolvedParams = await params;
+  const id = parseInt(resolvedParams.id);
   if (isNaN(id)) throw new Error("ID do evento inválido");
   return id;
 }
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const eventId = parseEventId(params);
+    const eventId = await parseEventId(params);
 
     const event = await prisma.event.findUnique({
       where: { id: eventId },
@@ -49,10 +50,10 @@ export async function GET(
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const eventId = parseEventId(params);
+    const eventId = await parseEventId(params);
     const body = await request.json();
     const validatedData = updateEventSchema.parse(body);
 
@@ -95,10 +96,10 @@ export async function PATCH(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const eventId = parseEventId(params);
+    const eventId = await parseEventId(params);
     const existingEvent = await prisma.event.findUnique({
       where: { id: eventId },
     });
