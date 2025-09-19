@@ -25,8 +25,12 @@ const inscriptionSchema = z.object({
   phone: z
     .string()
     .min(1, "O telefone é obrigatório")
-    .regex(
-      /^\(\d{2}\)\s\d{4,5}-\d{4}$/,
+    .refine(
+      (val) => val && val.replace(/\D/g, "").length >= 10,
+      "O telefone é obrigatório"
+    )
+    .refine(
+      (val) => val && /^\(\d{2}\)\s\d{4,5}-\d{4}$/.test(val),
       "Telefone deve estar no formato (XX) XXXXX-XXXX"
     ),
 });
