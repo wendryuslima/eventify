@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { EventDetail } from "@/types/event";
 import { api } from "@/lib/api";
@@ -26,22 +26,24 @@ export default function EventDetailPage() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
-  const loadEvent = useCallback(async () => {
+  async function loadEvent() {
     try {
       setLoading(true);
-      setEvent(await api.getEvent(eventId));
+      const res = await api.getEvent(eventId);
+      setEvent(res);
     } catch {
       toast.error("Erro ao carregar evento");
     } finally {
       setLoading(false);
     }
-  }, [eventId]);
+  }
 
-  const handleInscription = async (data: InscriptionFormData) => {
+  async function handleInscription(data: InscriptionFormData) {
     if (!event) return;
     try {
       setSubmitting(true);
       await api.createInscription(eventId, data);
+
       const updated = await api.getEvent(eventId);
       setEvent(updated);
 
@@ -52,19 +54,21 @@ export default function EventDetailPage() {
       }
     } catch (err: any) {
       const msg = err.message || "";
-      if (msg.includes("esgotado"))
+      if (msg.includes("esgotado")) {
         toast.error("Evento esgotado - não há mais vagas disponíveis");
-      else if (msg.includes("duplicada"))
+      } else if (msg.includes("duplicada")) {
         toast.error("Telefone já inscrito neste evento");
-      else if (msg.includes("inativo"))
+      } else if (msg.includes("inativo")) {
         toast.error("Evento inativo - inscrições não permitidas");
-      else toast.error("Erro ao realizar inscrição");
+      } else {
+        toast.error("Erro ao realizar inscrição");
+      }
     } finally {
       setSubmitting(false);
     }
-  };
+  }
 
-  const handleCancel = async (phone: string) => {
+  async function handleCancel(phone: string) {
     try {
       await api.cancelInscription(eventId, phone);
       toast.success("Inscrição cancelada!");
@@ -72,25 +76,31 @@ export default function EventDetailPage() {
     } catch {
       toast.error("Erro ao cancelar inscrição");
     }
-  };
+  }
 
   useEffect(() => {
     loadEvent();
-  }, [eventId, loadEvent]);
+  }, [eventId]);
 
   useEffect(() => {
     if (!socket.isConnected) return;
-    const update = () => loadEvent();
+
+    function update() {
+      loadEvent();
+    }
+
     socket.joinEventRoom(eventId);
     socket.onEventUpdate(update);
+
     return () => {
       socket.leaveEventRoom(eventId);
       socket.offEventUpdate(update);
     };
-  }, [eventId, socket, loadEvent]);
+  }, [eventId, socket]);
 
   if (loading) return <LoadingSpinner message="Carregando evento..." />;
-  if (!event)
+
+  if (!event) {
     return (
       <ErrorState
         title="Evento não encontrado"
@@ -100,6 +110,7 @@ export default function EventDetailPage() {
         onBack={() => router.push("/")}
       />
     );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
