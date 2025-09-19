@@ -10,21 +10,15 @@ const nextConfig: NextConfig = {
     config.watchOptions = {
       ignored: ["**/backend/**", "**/node_modules/**"],
     };
-    
+
     // Excluir backend do build
     config.externals = config.externals || [];
     config.externals.push({
-      'backend': 'commonjs backend'
+      backend: "commonjs backend",
     });
-    
+
     return config;
   },
-  // Excluir backend do build
-  experimental: {
-    outputFileTracingExcludes: {
-      '*': ['./backend/**/*']
-    }
-  }
 };
 
 export default nextConfig;
