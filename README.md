@@ -5,6 +5,7 @@
 - **Concorrência**: Controle de capacidade com transações atômicas
 - **UX/UI Moderna**: Interface responsiva com componentes reutilizáveis
 - **Observabilidade**: Sistema completo de auditoria e logs
+- **Tempo Real**: Atualizações automáticas com Socket.IO
 
 ## Diferenciais Técnicos Implementados
 
@@ -122,6 +123,8 @@
 
 #### Backend (`.env`)
 
+Crie o arquivo `.env` na pasta `backend/`:
+
 ```env
 # Database
 DATABASE_URL="postgresql://eventify_user:eventify_password@localhost:5432/eventify?schema=public"
@@ -132,6 +135,8 @@ FRONTEND_URL="http://localhost:3000"
 ```
 
 #### Frontend (`.env.local`)
+
+Crie o arquivo `.env.local` na raiz do projeto:
 
 ```env
 # API Configuration
@@ -144,6 +149,8 @@ NEXT_PUBLIC_API_URL="http://localhost:3001/api"
 git clone <url-do-repositorio>
 cd eventify
 ```
+
+**Nota**: Substitua `<url-do-repositorio>` pela URL real do seu repositório.
 
 ### 4. Configure o Backend
 
@@ -204,11 +211,13 @@ cd ../ # Voltar para a raiz do projeto
 npm install
 ```
 
-Crie um arquivo `.env.local` baseado no `.env.example`:
+Crie um arquivo `.env.local` baseado no `.env.example` (se existir):
 
 ```bash
 cp .env.example .env.local
 ```
+
+**Ou crie manualmente** o arquivo `.env.local` na raiz do projeto com o conteúdo mostrado na seção de variáveis de ambiente.
 
 ### 7. Executar a Aplicação
 
@@ -340,6 +349,7 @@ docker-compose down
 - **Concurrency**: Controle de transações e race conditions
 - **Validation**: Validação robusta em múltiplas camadas
 - **Error Handling**: Tratamento adequado de erros e edge cases
+- **Real-time**: Socket.IO para comunicação em tempo real
 
 ### Frontend Development
 
@@ -348,6 +358,7 @@ docker-compose down
 - **UX/UI**: Interface intuitiva e responsiva
 - **Form Handling**: Validação e feedback em tempo real
 - **State Management**: Gerenciamento eficiente de estado
+- **Accessibility**: Componentes acessíveis seguindo WCAG
 
 ### DevOps & Quality
 
@@ -355,3 +366,22 @@ docker-compose down
 - **Database Management**: Migrações e seeds automatizados
 - **Code Quality**: Linting e formatação consistente
 - **Documentation**: README detalhado e instruções claras
+- **Docker**: Containerização para PostgreSQL
+- **Scripts**: Automação de tarefas de desenvolvimento
+
+---
+
+## 📝 Notas de Entrega
+
+Este projeto demonstra um sistema completo de gestão de eventos com todas as funcionalidades solicitadas e diferenciais técnicos implementados. O código está pronto para produção e inclui:
+
+- ✅ CRUD completo de eventos
+- ✅ Sistema de inscrições com controle de capacidade
+- ✅ Validação de duplicidade
+- ✅ Interface moderna e responsiva
+- ✅ Atualizações em tempo real
+- ✅ Sistema de auditoria completo
+- ✅ Documentação detalhada
+- ✅ Setup automatizado com Docker
+
+**Para testar**: Execute `npm run dev:full` e acesse `http://localhost:3000`
