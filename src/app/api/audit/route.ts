@@ -11,7 +11,10 @@ export async function GET(request: NextRequest) {
 
     const skip = (page - 1) * limit;
 
-    const where: any = {};
+    const where: {
+      action?: string;
+      entityType?: string;
+    } = {};
     if (action) {
       where.action = action;
     }

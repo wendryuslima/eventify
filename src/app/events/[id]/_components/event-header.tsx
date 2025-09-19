@@ -15,7 +15,7 @@ interface EventHeaderProps {
   onEventDeleted?: () => void;
 }
 
-const EventHeader = ({ event, onBack, onEventDeleted }: EventHeaderProps) => {
+const EventHeader = ({ event, onEventDeleted }: EventHeaderProps) => {
   const { deleteEvent } = useEventOperations();
 
   const handleDeleteEvent = async () => {

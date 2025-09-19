@@ -4,7 +4,7 @@ export interface AuditLogData {
   action: string;
   entityType: string;
   entityId: number;
-  details: Record<string, any>;
+  details: Record<string, unknown>;
 }
 
 export const auditService = {
