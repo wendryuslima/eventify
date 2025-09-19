@@ -97,11 +97,9 @@ const EditInscriptionModal = ({
         }
       );
 
-      if (response.success) {
-        toast.success("Inscrição atualizada com sucesso!");
-        onSuccess();
-        onClose();
-      }
+      toast.success("Inscrição atualizada com sucesso!");
+      onSuccess();
+      onClose();
     } catch (error) {
       console.log(error);
       toast.error("Erro ao atualizar inscrição. Tente novamente.");

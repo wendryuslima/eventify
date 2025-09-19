@@ -33,7 +33,7 @@ export default function EventDetailPage() {
     try {
       setLoading(true);
       const res = await api.getEvent(eventId);
-      setEvent(res.data);
+      setEvent(res);
     } catch {
       toast.error("Erro ao carregar evento");
     } finally {

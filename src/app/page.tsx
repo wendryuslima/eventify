@@ -21,8 +21,8 @@ export default function Home() {
       setLoading(true);
       setError(null);
       const response = await api.getEvents();
-      setEvents(response.data);
-    } catch {
+      setEvents(response);
+    } catch (error) {
       setError("Erro ao carregar eventos");
       toast.error("Erro ao carregar eventos");
     } finally {
@@ -76,8 +76,8 @@ export default function Home() {
           </div>
           <div className="flex items-center gap-4">
             <div className="text-sm text-gray-500">
-              {events.length} evento{events.length !== 1 ? "s" : ""} disponível
-              {events.length !== 1 ? "s" : ""}
+              {events?.length || 0} evento
+              {(events?.length || 0) !== 1 ? "s" : ""} disponível
             </div>
             <Link href="/events/create">
               <Button className="flex items-center gap-2">

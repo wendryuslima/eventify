@@ -22,12 +22,9 @@ export function useEventOperations() {
         status: data.status,
       });
 
-      if (response.success) {
-        toast.success("Evento criado com sucesso!");
-        router.push("/");
-        return { success: true };
-      }
-      return { success: false };
+      toast.success("Evento criado com sucesso!");
+      router.push("/");
+      return { success: true };
     } catch (error) {
       toast.error("Erro ao criar evento. Tente novamente.");
       return { success: false, error };
@@ -54,14 +51,9 @@ export function useEventOperations() {
         status: data.status,
       });
 
-      if (response.success) {
-        toast.success("Evento atualizado com sucesso!");
-        router.push(`/events/${eventId}`);
-        return { success: true };
-      } else {
-        toast.error(response.message || "Erro ao atualizar evento");
-        return { success: false };
-      }
+      toast.success("Evento atualizado com sucesso!");
+      router.push(`/events/${eventId}`);
+      return { success: true };
     } catch (error) {
       toast.error("Erro ao atualizar evento. Tente novamente.");
       return { success: false, error };
@@ -73,15 +65,12 @@ export function useEventOperations() {
   const deleteEvent = async (eventId: number, onSuccess?: () => void) => {
     try {
       const response = await api.deleteEvent(eventId);
-      if (response.success) {
-        toast.success("Evento excluído com sucesso!");
-        if (onSuccess) {
-          onSuccess();
-        }
-        router.push("/");
-        return { success: true };
+      toast.success("Evento excluído com sucesso!");
+      if (onSuccess) {
+        onSuccess();
       }
-      return { success: false };
+      router.push("/");
+      return { success: true };
     } catch (error) {
       toast.error("Erro ao excluir evento. Tente novamente.");
       return { success: false, error };
@@ -91,10 +80,7 @@ export function useEventOperations() {
   const loadEvent = useCallback(async (eventId: number) => {
     try {
       const response = await api.getEvent(eventId);
-      if (response.success) {
-        return response.data;
-      }
-      return null;
+      return response;
     } catch {
       toast.error("Erro ao carregar evento");
       return null;

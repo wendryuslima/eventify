@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { auditService } from "@/lib/audit";
+import { PrismaClient } from "@prisma/client";
 
 const inscriptionSchema = z.object({
   name: z.string().min(1, "Nome é obrigatório"),
@@ -83,7 +84,7 @@ export async function POST(
     const body = await request.json();
     const validatedData = inscriptionSchema.parse(body);
 
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx: PrismaClient) => {
       const event = await tx.event.findUnique({
         where: { id: eventId },
         include: {
