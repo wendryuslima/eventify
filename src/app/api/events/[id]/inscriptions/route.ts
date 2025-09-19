@@ -1,11 +1,9 @@
-// app/api/events/[id]/inscriptions/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { auditService } from "@/lib/audit";
-import { PrismaClient } from "@prisma/client";
 
-const InscriptionSchema = z.object({
+const inscriptionSchema = z.object({
   name: z.string().min(1, "Nome é obrigatório"),
   phone: z
     .string()
@@ -15,7 +13,7 @@ const InscriptionSchema = z.object({
     ),
 });
 
-const CancelInscriptionSchema = z.object({
+const cancelInscriptionSchema = z.object({
   phone: z
     .string()
     .regex(
@@ -24,72 +22,113 @@ const CancelInscriptionSchema = z.object({
     ),
 });
 
-function parseEventId(params: { id: string }) {
-  const eventId = parseInt(params.id);
-  if (isNaN(eventId)) throw new Error("ID do evento inválido");
-  return eventId;
-}
-
 export async function GET(
-  _req: NextRequest,
+  request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    const eventId = parseEventId(params);
+    const eventId = parseInt(params.id);
 
-    const event = await prisma.event.findUnique({ where: { id: eventId } });
-    if (!event)
+    if (isNaN(eventId)) {
+      return NextResponse.json(
+        { error: "ID do evento inválido" },
+        { status: 400 }
+      );
+    }
+
+    const event = await prisma.event.findUnique({
+      where: { id: eventId },
+    });
+
+    if (!event) {
       return NextResponse.json(
         { error: "Evento não encontrado" },
         { status: 404 }
       );
+    }
 
     const inscriptions = await prisma.inscription.findMany({
       where: { eventId },
-      orderBy: { createdAt: "desc" },
+      orderBy: {
+        createdAt: "desc",
+      },
     });
 
     return NextResponse.json(inscriptions);
-  } catch (err) {
+  } catch (error) {
+    console.error("Erro ao listar inscrições:", error);
     return NextResponse.json(
-      { error: err instanceof Error ? err.message : "Erro interno" },
+      { error: "Erro interno do servidor" },
       { status: 500 }
     );
   }
 }
 
 export async function POST(
-  req: NextRequest,
+  request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    const eventId = parseEventId(params);
-    const data = InscriptionSchema.parse(await req.json());
+    const eventId = parseInt(params.id);
 
-    const result = await prisma.$transaction(async (tx: PrismaClient) => {
+    if (isNaN(eventId)) {
+      return NextResponse.json(
+        { error: "ID do evento inválido" },
+        { status: 400 }
+      );
+    }
+
+    const body = await request.json();
+    const validatedData = inscriptionSchema.parse(body);
+
+    const result = await prisma.$transaction(async (tx) => {
       const event = await tx.event.findUnique({
         where: { id: eventId },
-        include: { _count: { select: { inscriptions: true } } },
+        include: {
+          _count: {
+            select: {
+              inscriptions: true,
+            },
+          },
+        },
       });
-      if (!event) throw new Error("Evento não encontrado");
-      if (event.status !== "ACTIVE")
-        throw new Error("Evento não está ativo para inscrições");
-      if (event._count.inscriptions >= event.capacity)
-        throw new Error("Evento esgotado");
 
-      const existing = await tx.inscription.findUnique({
-        where: { eventId_phone: { eventId, phone: data.phone } },
+      if (!event) {
+        throw new Error("Evento não encontrado");
+      }
+
+      if (event.status !== "ACTIVE") {
+        throw new Error("Evento não está ativo para inscrições");
+      }
+
+      const existingInscription = await tx.inscription.findUnique({
+        where: {
+          eventId_phone: {
+            eventId,
+            phone: validatedData.phone,
+          },
+        },
       });
-      if (existing) throw new Error("Telefone já inscrito neste evento");
+
+      if (existingInscription) {
+        throw new Error(
+          "Já existe uma inscrição com este telefone para este evento"
+        );
+      }
+
+      if (event._count.inscriptions >= event.capacity) {
+        throw new Error("Evento esgotado - não há mais vagas disponíveis");
+      }
 
       const inscription = await tx.inscription.create({
-        data: { name: data.name, phone: data.phone, eventId },
+        data: {
+          name: validatedData.name,
+          phone: validatedData.phone,
+          eventId,
+        },
       });
 
-      return {
-        inscription,
-        remainingCapacity: event.capacity - event._count.inscriptions - 1,
-      };
+      return { inscription, event };
     });
 
     await auditService.log({
@@ -98,44 +137,72 @@ export async function POST(
       entityId: result.inscription.id,
       details: {
         eventId,
-        participantName: data.name,
-        phone: data.phone,
-        remainingCapacity: result.remainingCapacity,
+        participantName: validatedData.name,
+        phone: validatedData.phone,
+        remainingCapacity:
+          result.event.capacity - result.event._count.inscriptions - 1,
       },
     });
 
     return NextResponse.json(result.inscription, { status: 201 });
-  } catch (err) {
-    if (err instanceof z.ZodError)
+  } catch (error) {
+    if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: "Dados inválidos", details: err.errors },
+        { error: "Dados inválidos", details: error.errors },
         { status: 400 }
       );
+    }
+
+    if (error instanceof Error) {
+      return NextResponse.json({ error: error.message }, { status: 400 });
+    }
+
+    console.error("Erro ao criar inscrição:", error);
     return NextResponse.json(
-      { error: err instanceof Error ? err.message : "Erro interno" },
-      { status: 400 }
+      { error: "Erro interno do servidor" },
+      { status: 500 }
     );
   }
 }
 
 export async function DELETE(
-  req: NextRequest,
+  request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    const eventId = parseEventId(params);
-    const data = CancelInscriptionSchema.parse(await req.json());
+    const eventId = parseInt(params.id);
+
+    if (isNaN(eventId)) {
+      return NextResponse.json(
+        { error: "ID do evento inválido" },
+        { status: 400 }
+      );
+    }
+
+    const body = await request.json();
+    const validatedData = cancelInscriptionSchema.parse(body);
 
     const inscription = await prisma.inscription.findUnique({
-      where: { eventId_phone: { eventId, phone: data.phone } },
+      where: {
+        eventId_phone: {
+          eventId,
+          phone: validatedData.phone,
+        },
+      },
     });
-    if (!inscription)
+
+    if (!inscription) {
       return NextResponse.json(
         { error: "Inscrição não encontrada" },
         { status: 404 }
       );
+    }
 
-    await prisma.inscription.delete({ where: { id: inscription.id } });
+    await prisma.inscription.delete({
+      where: {
+        id: inscription.id,
+      },
+    });
 
     await auditService.log({
       action: "DELETE_INSCRIPTION",
@@ -152,14 +219,17 @@ export async function DELETE(
       { message: "Inscrição cancelada com sucesso" },
       { status: 200 }
     );
-  } catch (err) {
-    if (err instanceof z.ZodError)
+  } catch (error) {
+    if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: "Dados inválidos", details: err.errors },
+        { error: "Dados inválidos", details: error.errors },
         { status: 400 }
       );
+    }
+
+    console.error("Erro ao cancelar inscrição:", error);
     return NextResponse.json(
-      { error: err instanceof Error ? err.message : "Erro interno" },
+      { error: "Erro interno do servidor" },
       { status: 500 }
     );
   }
