@@ -1,8 +1,10 @@
+export type EventStatus = "ACTIVE" | "INACTIVE" | "CANCELLED";
+
 export interface Event {
   id: number;
   title: string;
   description: string | null;
-  status: "ACTIVE" | "INACTIVE";
+  status: EventStatus;
   capacity: number;
   totalInscriptions: number;
   remainingCapacity: number;

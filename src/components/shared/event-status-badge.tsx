@@ -1,5 +1,6 @@
 import { Badge } from "@/components/ui/badge";
-import { getEventStatusInfo, EventStatus } from "@/lib/event-utils";
+import { getEventStatusInfo } from "@/lib/event-utils";
+import { EventStatus } from "@/types/event";
 
 interface EventStatusBadgeProps {
   status: EventStatus;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { EventDetail } from "@/types/event";
 import { api } from "@/lib/api";
@@ -29,7 +29,7 @@ export default function EventDetailPage() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
-  const loadEvent = async () => {
+  const loadEvent = useCallback(async () => {
     try {
       setLoading(true);
       const res = await api.getEvent(eventId);
@@ -39,7 +39,7 @@ export default function EventDetailPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [eventId]);
 
   const handleInscription = async (data: InscriptionFormData) => {
     if (!event) return;
@@ -47,9 +47,12 @@ export default function EventDetailPage() {
       setSubmitting(true);
       await api.createInscription(eventId, data);
       toast.success("Inscrição realizada!");
-      loadEvent();
-    } catch {
-      toast.error("Telefone já inscrito");
+
+      const res = await api.getEvent(eventId);
+      setEvent(res);
+    } catch (error) {
+      console.log(error);
+      toast.error("Erro ao criar inscrição");
     } finally {
       setSubmitting(false);
     }
@@ -60,7 +63,9 @@ export default function EventDetailPage() {
     try {
       await api.cancelInscription(eventId, phone);
       toast.success("Inscrição cancelada!");
-      loadEvent();
+
+      const res = await api.getEvent(eventId);
+      setEvent(res);
     } catch {
       toast.error("Erro ao cancelar inscrição");
     }

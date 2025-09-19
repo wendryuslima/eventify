@@ -101,7 +101,9 @@ export const api = {
       const data = await response.json();
 
       if (!data.success) {
-        throw new Error(data.message || "Erro ao criar inscrição");
+        throw new Error(
+          data.error || data.message || "Erro ao criar inscrição"
+        );
       }
 
       return data;
@@ -126,7 +128,9 @@ export const api = {
       const data = await response.json();
 
       if (!data.success) {
-        throw new Error(data.message || "Erro ao cancelar inscrição");
+        throw new Error(
+          data.error || data.message || "Erro ao cancelar inscrição"
+        );
       }
 
       return data;

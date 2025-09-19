@@ -147,7 +147,14 @@ export async function POST(
       },
     });
 
-    return NextResponse.json(result.inscription, { status: 201 });
+    return NextResponse.json(
+      {
+        success: true,
+        message: "Inscrição realizada com sucesso",
+        data: result.inscription,
+      },
+      { status: 201 }
+    );
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
@@ -220,7 +227,7 @@ export async function DELETE(
     });
 
     return NextResponse.json(
-      { message: "Inscrição cancelada com sucesso" },
+      { success: true, message: "Inscrição cancelada com sucesso" },
       { status: 200 }
     );
   } catch (error) {

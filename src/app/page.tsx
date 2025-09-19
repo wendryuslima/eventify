@@ -77,7 +77,8 @@ export default function Home() {
           <div className="flex items-center gap-4">
             <div className="text-sm text-gray-500">
               {events?.length || 0} evento
-              {(events?.length || 0) !== 1 ? "s" : ""} disponível
+              {(events?.length || 0) !== 1 ? "s" : ""} disponíve
+              {(events?.length || 0) !== 1 ? "is" : "l"}
             </div>
             <Link href="/events/create">
               <Button className="flex items-center gap-2">

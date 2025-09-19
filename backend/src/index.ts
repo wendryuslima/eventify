@@ -64,8 +64,8 @@ io.on("connection", (socket) => {
 });
 
 server.listen(PORT, () => {
-  console.log(`🚀 Servidor rodando na porta ${PORT}`);
-  console.log(`🌐 Ambiente: ${NODE_ENV}`);
-  console.log(`🔗 Frontend URL: ${FRONTEND_URL}`);
-  console.log(`⚡ Socket.IO habilitado`);
+  console.log(` Servidor rodando na porta ${PORT}`);
+  console.log(` Ambiente: ${NODE_ENV}`);
+  console.log(` Frontend URL: ${FRONTEND_URL}`);
+  console.log(` Socket.IO habilitado`);
 });
