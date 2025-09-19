@@ -13,6 +13,10 @@ import {
   ParticipantsList,
   InscriptionForm,
 } from "./_components";
+import {
+  getErrorMessage,
+  getInscriptionSuccessMessage,
+} from "@/lib/error-handler";
 
 type InscriptionFormData = { name: string; phone: string };
 
@@ -47,22 +51,10 @@ export default function EventDetailPage() {
       const updated = await api.getEvent(eventId);
       setEvent(updated);
 
-      if (updated.remainingCapacity === 0) {
-        toast.success("Inscrição realizada! Capacidade máxima atingida.");
-      } else {
-        toast.success("Inscrição realizada!");
-      }
+      toast.success(getInscriptionSuccessMessage(updated.remainingCapacity));
     } catch (err: any) {
-      const msg = err.message || "";
-      if (msg.includes("esgotado")) {
-        toast.error("Evento esgotado - não há mais vagas disponíveis");
-      } else if (msg.includes("duplicada")) {
-        toast.error("Telefone já inscrito neste evento");
-      } else if (msg.includes("inativo")) {
-        toast.error("Evento inativo - inscrições não permitidas");
-      } else {
-        toast.error("Erro ao realizar inscrição");
-      }
+      const errorMsg = err.message || "";
+      toast.error(getErrorMessage(errorMsg));
     } finally {
       setSubmitting(false);
     }
