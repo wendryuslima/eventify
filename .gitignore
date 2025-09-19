@@ -40,7 +40,11 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# backend (separate project)
-backend/
+# backend (separate project - keep in repo but exclude from build)
+backend/node_modules/
+backend/dist/
+backend/build/
+backend/.env
+backend/.env.local
 
 .vercel
