@@ -9,16 +9,19 @@ import { auditRoutes } from "./routes/audit";
 
 dotenv.config();
 
+const PORT = process.env.PORT || 3001;
+const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:3000";
+const NODE_ENV = process.env.NODE_ENV || "development";
+
 const app = express();
 const server = createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:3000",
+    origin: FRONTEND_URL,
     methods: ["GET", "POST"],
+    credentials: true,
   },
 });
-
-const PORT = process.env.PORT || 3001;
 
 import { setSocketInstance } from "./services/socket";
 
@@ -26,7 +29,8 @@ setSocketInstance(io);
 
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: FRONTEND_URL,
+    credentials: true,
   })
 );
 
@@ -40,16 +44,10 @@ app.use("/api/events", eventRoutes);
 app.use("/api/events", inscriptionRoutes);
 app.use("/api/audit", auditRoutes);
 
-app.use(
-  (
-    err: Error,
-    req: express.Request,
-    res: express.Response,
-    next: express.NextFunction
-  ) => {
-    res.status(500).json({ error: "Erro interno do servidor" });
-  }
-);
+app.use((err: Error, req: express.Request, res: express.Response) => {
+  console.error("Erro interno do servidor:", err);
+  res.status(500).json({ error: "Erro interno do servidor" });
+});
 
 app.use((req, res) => {
   res.status(404).json({ error: "Rota não encontrada" });
@@ -66,6 +64,8 @@ io.on("connection", (socket) => {
 });
 
 server.listen(PORT, () => {
-  console.log(`Servidor rodando na porta ${PORT}`);
-  console.log(`Socket.IO habilitado`);
+  console.log(`🚀 Servidor rodando na porta ${PORT}`);
+  console.log(`🌐 Ambiente: ${NODE_ENV}`);
+  console.log(`🔗 Frontend URL: ${FRONTEND_URL}`);
+  console.log(`⚡ Socket.IO habilitado`);
 });

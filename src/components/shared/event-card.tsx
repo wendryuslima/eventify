@@ -30,7 +30,7 @@ export const EventCard = ({ event, onEventDeleted }: EventCardProps) => {
   };
 
   return (
-    <Card className="hover:shadow-lg transition-shadow duration-200">
+    <Card className="hover:shadow-lg transition-shadow duration-200 h-full flex flex-col">
       <CardHeader>
         <div className="flex items-start justify-between">
           <div className="flex-1">
@@ -57,24 +57,27 @@ export const EventCard = ({ event, onEventDeleted }: EventCardProps) => {
         </div>
       </CardHeader>
 
-      <CardContent>
-        {event.description && (
-          <CardDescription className="mb-4 line-clamp-3">
-            {event.description}
-          </CardDescription>
-        )}
+      <CardContent className="flex-1 flex flex-col justify-between">
+        <div>
+          {event.description && (
+            <CardDescription className="mb-4 line-clamp-3">
+              {event.description}
+            </CardDescription>
+          )}
 
-        <div className="space-y-3">
-          <EventCapacityInfo
-            remainingCapacity={event.remainingCapacity}
-            totalCapacity={event.capacity}
-          />
+          <div className="space-y-3">
+            <EventCapacityInfo
+              remainingCapacity={event.remainingCapacity}
+              totalCapacity={event.capacity}
+            />
 
-          <div className="flex items-center text-sm text-gray-600">
-            <Calendar className="h-4 w-4 mr-2" />
-            <span>
-              Criado em {new Date(event.createdAt).toLocaleDateString("pt-BR")}
-            </span>
+            <div className="flex items-center text-sm text-gray-600">
+              <Calendar className="h-4 w-4 mr-2" />
+              <span>
+                Criado em{" "}
+                {new Date(event.createdAt).toLocaleDateString("pt-BR")}
+              </span>
+            </div>
           </div>
         </div>
 
@@ -94,5 +97,3 @@ export const EventCard = ({ event, onEventDeleted }: EventCardProps) => {
     </Card>
   );
 };
-
-
