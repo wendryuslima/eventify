@@ -7,7 +7,7 @@ const createEventSchema = z.object({
   title: z.string().min(1, "Título é obrigatório"),
   description: z.string().optional(),
   capacity: z.number().int().min(0, "Capacidade deve ser maior ou igual a 0"),
-  status: z.enum(["ACTIVE", "INACTIVE", "CANCELLED"]).default("ACTIVE"),
+  status: z.enum(["ACTIVE", "INACTIVE"]).default("ACTIVE"),
 });
 
 export async function GET() {
@@ -25,7 +25,13 @@ export async function GET() {
       },
     });
 
-    return NextResponse.json(events);
+    const eventsWithCalculatedFields = events.map((event: any) => ({
+      ...event,
+      totalInscriptions: event._count.inscriptions,
+      remainingCapacity: event.capacity - event._count.inscriptions,
+    }));
+
+    return NextResponse.json(eventsWithCalculatedFields);
   } catch (error) {
     console.error("Erro ao listar eventos:", error);
     return NextResponse.json(

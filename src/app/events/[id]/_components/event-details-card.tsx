@@ -37,8 +37,16 @@ const EventDetailsCard = ({ event }: EventDetailsCardProps) => {
             <Label className="text-sm font-medium text-gray-700">
               Vagas Restantes
             </Label>
-            <p className="text-gray-600 mt-1">
-              {event.remainingCapacity} pessoas
+            <p
+              className={`mt-1 ${
+                (event.remainingCapacity ?? 0) === 0
+                  ? "text-red-600 font-medium"
+                  : "text-gray-600"
+              }`}
+            >
+              {(event.remainingCapacity ?? 0) === 0
+                ? "Evento esgotado"
+                : `${event.remainingCapacity ?? 0} pessoas`}
             </p>
           </div>
         </div>

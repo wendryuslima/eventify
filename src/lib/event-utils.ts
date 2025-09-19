@@ -12,11 +12,7 @@ export function getEventStatusInfo(status: EventStatus) {
         color: "bg-gray-100 text-gray-800 border-gray-200",
         text: "Inativo",
       };
-    case "CANCELLED":
-      return {
-        color: "bg-red-100 text-red-800 border-red-200",
-        text: "Cancelado",
-      };
+
     default:
       return {
         color: "bg-gray-100 text-gray-800 border-gray-200",
@@ -40,10 +36,6 @@ export function getEventButtonText(
   status: EventStatus,
   remainingCapacity: number
 ) {
-  if (status === "CANCELLED") {
-    return "Evento Cancelado";
-  }
-
   if (status !== "ACTIVE") {
     return "Evento Inativo";
   }

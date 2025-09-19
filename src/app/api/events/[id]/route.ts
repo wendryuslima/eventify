@@ -38,7 +38,16 @@ export async function GET(
         { status: 404 }
       );
 
-    return NextResponse.json(event);
+    const totalInscriptions = event._count.inscriptions;
+    const remainingCapacity = event.capacity - totalInscriptions;
+
+    const eventWithCalculatedFields = {
+      ...event,
+      totalInscriptions,
+      remainingCapacity,
+    };
+
+    return NextResponse.json(eventWithCalculatedFields);
   } catch (error) {
     console.error("GET Event Error:", error);
     return NextResponse.json(
