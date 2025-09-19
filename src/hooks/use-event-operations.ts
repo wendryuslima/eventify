@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { api } from "@/lib/api";
@@ -58,8 +58,10 @@ export function useEventOperations() {
         toast.success("Evento atualizado com sucesso!");
         router.push(`/events/${eventId}`);
         return { success: true };
+      } else {
+        toast.error(response.message || "Erro ao atualizar evento");
+        return { success: false };
       }
-      return { success: false };
     } catch (error) {
       toast.error("Erro ao atualizar evento. Tente novamente.");
       return { success: false, error };
@@ -86,18 +88,18 @@ export function useEventOperations() {
     }
   };
 
-  const loadEvent = async (eventId: number) => {
+  const loadEvent = useCallback(async (eventId: number) => {
     try {
       const response = await api.getEvent(eventId);
       if (response.success) {
         return response.data;
       }
       return null;
-    } catch (error) {
+    } catch {
       toast.error("Erro ao carregar evento");
       return null;
     }
-  };
+  }, []);
 
   return {
     loading,

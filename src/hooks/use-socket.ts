@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { io, Socket } from "socket.io-client";
 
 const SOCKET_URL = "http://localhost:3001";
@@ -33,7 +33,6 @@ export function useSocket() {
   const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
-    // Only initialize socket on client side
     if (typeof window !== "undefined") {
       socketRef.current = io(SOCKET_URL);
 
@@ -52,43 +51,59 @@ export function useSocket() {
     }
   }, []);
 
-  const joinEventRoom = (eventId: number) => {
-    if (socketRef.current && isConnected) {
-      socketRef.current.emit("join-event", eventId);
-    }
-  };
+  const joinEventRoom = useCallback(
+    (eventId: number) => {
+      if (socketRef.current && isConnected) {
+        socketRef.current.emit("join-event", eventId);
+      }
+    },
+    [isConnected]
+  );
 
-  const leaveEventRoom = (eventId: number) => {
-    if (socketRef.current && isConnected) {
-      socketRef.current.emit("leave-event", eventId);
-    }
-  };
+  const leaveEventRoom = useCallback(
+    (eventId: number) => {
+      if (socketRef.current && isConnected) {
+        socketRef.current.emit("leave-event", eventId);
+      }
+    },
+    [isConnected]
+  );
 
-  const onEventUpdate = (callback: SocketEvents["event-update"]) => {
-    if (socketRef.current && isConnected) {
-      socketRef.current.on("event-update", callback);
-    }
-  };
+  const onEventUpdate = useCallback(
+    (callback: SocketEvents["event-update"]) => {
+      if (socketRef.current && isConnected) {
+        socketRef.current.on("event-update", callback);
+      }
+    },
+    [isConnected]
+  );
 
-  const offEventUpdate = (callback: SocketEvents["event-update"]) => {
-    if (socketRef.current && isConnected) {
-      socketRef.current.off("event-update", callback);
-    }
-  };
+  const offEventUpdate = useCallback(
+    (callback: SocketEvents["event-update"]) => {
+      if (socketRef.current && isConnected) {
+        socketRef.current.off("event-update", callback);
+      }
+    },
+    [isConnected]
+  );
 
-  const onEventsListUpdate = (callback: SocketEvents["events-list-update"]) => {
-    if (socketRef.current && isConnected) {
-      socketRef.current.on("events-list-update", callback);
-    }
-  };
+  const onEventsListUpdate = useCallback(
+    (callback: SocketEvents["events-list-update"]) => {
+      if (socketRef.current && isConnected) {
+        socketRef.current.on("events-list-update", callback);
+      }
+    },
+    [isConnected]
+  );
 
-  const offEventsListUpdate = (
-    callback: SocketEvents["events-list-update"]
-  ) => {
-    if (socketRef.current && isConnected) {
-      socketRef.current.off("events-list-update", callback);
-    }
-  };
+  const offEventsListUpdate = useCallback(
+    (callback: SocketEvents["events-list-update"]) => {
+      if (socketRef.current && isConnected) {
+        socketRef.current.off("events-list-update", callback);
+      }
+    },
+    [isConnected]
+  );
 
   return {
     isConnected,

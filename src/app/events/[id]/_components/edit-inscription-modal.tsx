@@ -74,7 +74,6 @@ const EditInscriptionModal = ({
         onClose();
       }
     } catch (error) {
-      console.error("Erro ao atualizar inscrição:", error);
       toast.error("Erro ao atualizar inscrição. Tente novamente.");
     } finally {
       setLoading(false);

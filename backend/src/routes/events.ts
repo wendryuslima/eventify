@@ -39,7 +39,6 @@ router.get("/", async (req, res) => {
       total: eventsWithCount.length,
     });
   } catch (error) {
-    console.error("Erro ao buscar eventos:", error);
     res.status(500).json({
       error: "Erro interno do servidor",
       message: "Não foi possível buscar os eventos",
@@ -97,7 +96,6 @@ router.get("/:id", async (req, res) => {
       data: eventData,
     });
   } catch (error) {
-    console.error("Erro ao buscar evento:", error);
     res.status(500).json({
       error: "Erro interno do servidor",
       message: "Não foi possível buscar o evento",
@@ -146,7 +144,6 @@ router.post("/", async (req, res) => {
       },
     });
 
-   
     await AuditService.logEventCreated(
       newEvent.id,
       {
@@ -173,7 +170,6 @@ router.post("/", async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("Erro ao criar evento:", error);
     res.status(500).json({
       error: "Erro interno do servidor",
       message: "Não foi possível criar o evento",
@@ -257,7 +253,6 @@ router.patch("/:id", async (req, res) => {
       },
     });
 
-   
     await AuditService.logEventUpdated(
       eventId,
       {
@@ -290,7 +285,6 @@ router.patch("/:id", async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("Erro ao atualizar evento:", error);
     res.status(500).json({
       error: "Erro interno do servidor",
       message: "Não foi possível atualizar o evento",
@@ -324,7 +318,6 @@ router.delete("/:id", async (req, res) => {
       where: { id: eventId },
     });
 
-
     await AuditService.logEventDeleted(
       eventId,
       {
@@ -340,7 +333,6 @@ router.delete("/:id", async (req, res) => {
       message: "Evento deletado com sucesso!",
     });
   } catch (error) {
-    console.error("Erro ao deletar evento:", error);
     res.status(500).json({
       error: "Erro interno do servidor",
       message: "Não foi possível deletar o evento",

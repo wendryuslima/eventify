@@ -19,7 +19,7 @@ import {
 import { useEventOperations } from "@/hooks/use-event-operations";
 import { eventFormSchema, EventFormData } from "@/schemas/event";
 
-const EditEventPage = () => {
+export default function EditEventPage() {
   const params = useParams();
   const eventId = params.id as string;
 
@@ -40,16 +40,19 @@ const EditEventPage = () => {
     const fetchEvent = async () => {
       if (!eventId) return;
 
-      const event = await loadEvent(parseInt(eventId));
-      if (event) {
-        form.reset({
-          title: event.title,
-          description: event.description || "",
-          capacity: event.capacity.toString(),
-          status: event.status,
-        });
+      try {
+        const event = await loadEvent(parseInt(eventId));
+        if (event) {
+          form.reset({
+            title: event.title,
+            description: event.description || "",
+            capacity: event.capacity.toString(),
+            status: event.status,
+          });
+        }
+      } finally {
+        setLoadingEvent(false);
       }
-      setLoadingEvent(false);
     };
 
     fetchEvent();
@@ -60,9 +63,7 @@ const EditEventPage = () => {
     await updateEvent(parseInt(eventId), data);
   };
 
-  if (loadingEvent) {
-    return <LoadingSpinner message="Carregando evento..." />;
-  }
+  if (loadingEvent) return <LoadingSpinner message="Carregando evento..." />;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -87,6 +88,4 @@ const EditEventPage = () => {
       </div>
     </div>
   );
-};
-
-export default EditEventPage;
+}

@@ -99,6 +99,11 @@ export const api = {
         }
       );
       const data = await response.json();
+
+      if (!data.success) {
+        throw new Error(data.message || "Erro ao criar inscrição");
+      }
+
       return data;
     } catch (error) {
       console.error("Erro ao criar inscrição:", error);
@@ -119,6 +124,12 @@ export const api = {
         }
       );
       const data = await response.json();
+
+      // Verificar se a resposta foi bem-sucedida
+      if (!data.success) {
+        throw new Error(data.message || "Erro ao cancelar inscrição");
+      }
+
       return data;
     } catch (error) {
       console.error("Erro ao cancelar inscrição:", error);

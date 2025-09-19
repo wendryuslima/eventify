@@ -25,7 +25,7 @@ async function main() {
 
   for (const evento of eventos) {
     const e = await prisma.event.create({ data: evento });
-    console.log(`Evento criado: ${e.title}`);
+  
   }
 }
 

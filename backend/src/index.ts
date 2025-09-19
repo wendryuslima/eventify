@@ -41,7 +41,6 @@ app.use("/api/events", inscriptionRoutes);
 app.use("/api/audit", auditRoutes);
 
 app.use((err: Error, req: express.Request, res: express.Response) => {
-  console.error(err);
   res.status(500).json({ error: "Erro interno do servidor" });
 });
 

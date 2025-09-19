@@ -13,7 +13,7 @@ import { NavigationBreadcrumb, EventForm } from "@/components/shared";
 import { useEventOperations } from "@/hooks/use-event-operations";
 import { eventFormSchema, EventFormData } from "@/schemas/event";
 
-export const CreateEventPage = () => {
+const CreateEventPage = () => {
   const { loading, createEvent } = useEventOperations();
 
   const form = useForm<EventFormData>({
@@ -57,4 +57,4 @@ export const CreateEventPage = () => {
   );
 };
 
-
+export default CreateEventPage;
