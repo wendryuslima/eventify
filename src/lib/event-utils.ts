@@ -4,7 +4,7 @@ export function getEventStatusInfo(status: EventStatus) {
   switch (status) {
     case "ACTIVE":
       return {
-        color: "bg-green-100 text-green-800 border-green-200",
+        color: "bg-green-500 text-green-800 border-green-600 font-semibold",
         text: "Ativo",
       };
     case "INACTIVE":
