@@ -25,7 +25,7 @@ model Inscription {
   id        Int      @id @default(autoincrement())
   name      String
   phone     String
-  event     Event    @relation(fields: [eventId], references: [id])
+  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
   eventId   Int
   createdAt DateTime @default(now())
 

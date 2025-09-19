@@ -10,7 +10,6 @@ router.get("/", async (req, res) => {
     const limit = Number(req.query.limit) || 50;
     const skip = (page - 1) * limit;
 
-    // Aqui usamos Partial<AuditLog> com filtro só para as propriedades que queremos
     const where: Record<string, string> = {};
     if (req.query.action) where.action = String(req.query.action);
     if (req.query.entityType) where.entityType = String(req.query.entityType);

@@ -125,7 +125,6 @@ export const api = {
       );
       const data = await response.json();
 
-      // Verificar se a resposta foi bem-sucedida
       if (!data.success) {
         throw new Error(data.message || "Erro ao cancelar inscrição");
       }
