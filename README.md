@@ -123,7 +123,14 @@
 
 #### Backend (`.env`)
 
-Crie o arquivo `.env` na pasta `backend/`:
+Crie o arquivo `.env` na pasta `backend/` baseado no `env.example`:
+
+```bash
+cd backend
+cp env.example .env
+```
+
+**Ou crie manualmente** o arquivo `.env` na pasta `backend/` com:
 
 ```env
 # Database
@@ -146,11 +153,9 @@ NEXT_PUBLIC_API_URL="http://localhost:3001/api"
 ### 3. Clone e Setup
 
 ```bash
-git clone <url-do-repositorio>
+git clone https://github.com/wendryuslima/eventify.git
 cd eventify
 ```
-
-**Nota**: Substitua `<url-do-repositorio>` pela URL real do seu repositório.
 
 ### 4. Configure o Backend
 
@@ -211,13 +216,19 @@ cd ../ # Voltar para a raiz do projeto
 npm install
 ```
 
-Crie um arquivo `.env.local` baseado no `.env.example` (se existir):
+Crie um arquivo `.env.local` na raiz do projeto com o seguinte conteúdo:
 
 ```bash
-cp .env.example .env.local
+# Criar o arquivo .env.local
+touch .env.local
 ```
 
-**Ou crie manualmente** o arquivo `.env.local` na raiz do projeto com o conteúdo mostrado na seção de variáveis de ambiente.
+**Conteúdo do arquivo `.env.local`:**
+
+```env
+# API Configuration
+NEXT_PUBLIC_API_URL="http://localhost:3001/api"
+```
 
 ### 7. Executar a Aplicação
 
@@ -385,3 +396,83 @@ Este projeto demonstra um sistema completo de gestão de eventos com todas as fu
 - ✅ Setup automatizado com Docker
 
 **Para testar**: Execute `npm run dev:full` e acesse `http://localhost:3000`
+
+## 🚨 Troubleshooting
+
+### Problemas Comuns
+
+**1. Erro de conexão com banco de dados**
+
+```bash
+# Verifique se o PostgreSQL está rodando
+docker-compose ps
+
+# Se não estiver, inicie novamente
+docker-compose up -d postgres
+```
+
+**2. Erro "Module not found" no backend**
+
+```bash
+cd backend
+npm install
+npm run db:generate
+```
+
+**3. Erro de migração**
+
+```bash
+cd backend
+npm run db:migrate
+```
+
+**4. Frontend não conecta com backend**
+
+- Verifique se o backend está rodando na porta 3001
+- Confirme se o arquivo `.env.local` tem a URL correta
+- Verifique se não há firewall bloqueando as portas
+
+**5. Script dev:full não funciona**
+
+```bash
+# Execute separadamente:
+# Terminal 1:
+cd backend && npm run dev
+
+# Terminal 2:
+npm run dev
+```
+
+### Logs e Debug
+
+Para ver logs detalhados do backend, ajuste no arquivo `backend/.env`:
+
+```env
+LOG_LEVEL=debug
+```
+
+## 🤝 Contribuição
+
+Contribuições são bem-vindas! Para contribuir com o projeto:
+
+1. **Fork** o repositório
+2. **Clone** seu fork: `git clone https://github.com/SEU_USUARIO/eventify.git`
+3. **Crie** uma branch para sua feature: `git checkout -b feature/nova-funcionalidade`
+4. **Commit** suas mudanças: `git commit -m 'Adiciona nova funcionalidade'`
+5. **Push** para sua branch: `git push origin feature/nova-funcionalidade`
+6. **Abra** um Pull Request
+
+## 📄 Licença
+
+Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
+
+## 👨‍💻 Autor
+
+**Wendryus Lima**
+
+- GitHub: [@wendryuslima](https://github.com/wendryuslima)
+- LinkedIn: [Wendryus Lima](https://linkedin.com/in/wendryuslima)
+
+---
+
+⭐ **Se este projeto foi útil para você, considere dar uma estrela no repositório!**
