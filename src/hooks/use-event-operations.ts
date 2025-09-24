@@ -80,7 +80,7 @@ export function useEventOperations() {
   const loadEvent = useCallback(async (eventId: number) => {
     try {
       const response = await api.getEvent(eventId);
-      return response;
+      return response.data || response;
     } catch {
       toast.error("Erro ao carregar evento");
       return null;

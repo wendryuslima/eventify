@@ -21,7 +21,7 @@ export default function Home() {
       setLoading(true);
       setError(null);
       const response = await api.getEvents();
-      setEvents(response);
+      setEvents(response.data || []);
     } catch (error) {
       setError("Erro ao carregar eventos");
       toast.error("Erro ao carregar eventos");

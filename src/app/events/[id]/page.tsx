@@ -34,7 +34,7 @@ export default function EventDetailPage() {
     try {
       setLoading(true);
       const res = await api.getEvent(eventId);
-      setEvent(res);
+      setEvent(res.data || res);
     } catch {
       toast.error("Erro ao carregar evento");
     } finally {
@@ -49,7 +49,7 @@ export default function EventDetailPage() {
       await api.createInscription(eventId, data);
 
       const updated = await api.getEvent(eventId);
-      setEvent(updated);
+      setEvent(updated.data || updated);
 
       toast.success(getInscriptionSuccessMessage(updated.remainingCapacity));
     } catch (err: any) {
