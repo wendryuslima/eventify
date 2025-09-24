@@ -121,6 +121,7 @@ cd backend && cp env.example .env && cd ..
 docker-compose up -d postgres
 cd backend && npm install && npm run db:generate && npm run db:migrate && npm run db:seed && cd ..
 npm install
+npm run db:generate
 npm run dev:full
 ```
 
@@ -452,10 +453,18 @@ npm run db:migrate
 ```bash
 echo 'NEXT_PUBLIC_API_URL="http://localhost:3001/api"' > .env.local
 cd backend && cp env.example .env && cd ..
+npm run db:generate
 npm run dev:full
 ```
 
-**6. Script dev:full não funciona**
+**6. Erro "@prisma/client did not initialize yet"**
+
+```bash
+npm run db:generate
+npm run dev:full
+```
+
+**7. Script dev:full não funciona**
 
 ```bash
 # Execute separadamente:
