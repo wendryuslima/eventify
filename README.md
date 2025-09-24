@@ -111,6 +111,21 @@
 - Notificações push para inscrições/cancelamentos
 - Rooms por evento para otimização de performance
 
+## 🚀 **Quick Start**
+
+```bash
+git clone https://github.com/wendryuslima/eventify.git
+cd eventify
+echo 'NEXT_PUBLIC_API_URL="http://localhost:3001/api"' > .env.local
+cd backend && cp env.example .env && cd ..
+docker-compose up -d postgres
+cd backend && npm install && npm run db:generate && npm run db:migrate && npm run db:seed && cd ..
+npm install
+npm run dev:full
+```
+
+**Acesse**: `http://localhost:3000`
+
 ## Instalação e Execução
 
 ### 1. Pré-requisitos
@@ -432,7 +447,15 @@ npm run db:migrate
 - Confirme se o arquivo `.env.local` tem a URL correta
 - Verifique se não há firewall bloqueando as portas
 
-**5. Script dev:full não funciona**
+**5. Erro de TypeScript: "Property 'inscriptions' does not exist"**
+
+```bash
+echo 'NEXT_PUBLIC_API_URL="http://localhost:3001/api"' > .env.local
+cd backend && cp env.example .env && cd ..
+npm run dev:full
+```
+
+**6. Script dev:full não funciona**
 
 ```bash
 # Execute separadamente:
@@ -451,22 +474,7 @@ Para ver logs detalhados do backend, ajuste no arquivo `backend/.env`:
 LOG_LEVEL=debug
 ```
 
-## 🤝 Contribuição
-
-Contribuições são bem-vindas! Para contribuir com o projeto:
-
-1. **Fork** o repositório
-2. **Clone** seu fork: `git clone https://github.com/SEU_USUARIO/eventify.git`
-3. **Crie** uma branch para sua feature: `git checkout -b feature/nova-funcionalidade`
-4. **Commit** suas mudanças: `git commit -m 'Adiciona nova funcionalidade'`
-5. **Push** para sua branch: `git push origin feature/nova-funcionalidade`
-6. **Abra** um Pull Request
-
-## 📄 Licença
-
-Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
-
-## 👨‍💻 Autor
+##
 
 **Wendryus Lima**
 
@@ -474,5 +482,3 @@ Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para ma
 - LinkedIn: [Wendryus Lima](https://linkedin.com/in/wendryuslima)
 
 ---
-
-⭐ **Se este projeto foi útil para você, considere dar uma estrela no repositório!**
