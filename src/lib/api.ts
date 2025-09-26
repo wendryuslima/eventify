@@ -5,7 +5,7 @@ export const api = {
     try {
       const response = await fetch(`${API_URL}/events`);
       const data = await response.json();
-      return data;
+      return data.data || [];
     } catch (error) {
       console.error("Erro ao buscar eventos:", error);
       throw error;
