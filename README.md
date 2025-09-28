@@ -135,7 +135,14 @@ npm run dev:full
 - Docker & Docker Compose
 - Git
 
-### 2. Variáveis de Ambiente
+### 2. Clone o Projeto
+
+```bash
+git clone https://github.com/wendryuslima/eventify.git
+cd eventify
+```
+
+### 3. Configure as Variáveis de Ambiente
 
 #### Backend (`.env`)
 
@@ -166,30 +173,11 @@ Crie o arquivo `.env.local` na raiz do projeto:
 NEXT_PUBLIC_API_URL="http://localhost:3001/api"
 ```
 
-### 3. Clone e Setup
-
-```bash
-git clone https://github.com/wendryuslima/eventify.git
-cd eventify
-```
-
 ### 4. Configure o Backend
 
 ```bash
 cd backend
 npm install
-```
-
-Crie um arquivo `.env` baseado no `env.example`:
-
-```bash
-cp env.example .env
-```
-
-**Para PostgreSQL local**, ajuste a `DATABASE_URL` no arquivo `.env` com suas credenciais:
-
-```env
-DATABASE_URL="postgresql://seu_usuario:sua_senha@localhost:5432/eventify?schema=public"
 ```
 
 ### 5. Configure o Banco de Dados
@@ -230,20 +218,6 @@ npm run db:seed
 ```bash
 cd ../ # Voltar para a raiz do projeto
 npm install
-```
-
-Crie um arquivo `.env.local` na raiz do projeto com o seguinte conteúdo:
-
-```bash
-# Criar o arquivo .env.local
-touch .env.local
-```
-
-**Conteúdo do arquivo `.env.local`:**
-
-```env
-# API Configuration
-NEXT_PUBLIC_API_URL="http://localhost:3001/api"
 ```
 
 ### 7. Executar a Aplicação
