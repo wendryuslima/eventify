@@ -30,7 +30,7 @@ export const EventCard = ({ event, onEventDeleted }: EventCardProps) => {
   };
 
   return (
-    <Card className="hover:shadow-lg transition-shadow duration-200 h-full flex flex-col">
+    <Card className="hover:shadow-lg transition-all duration-300 h-full flex flex-col border border-gray-200 hover:border-gray-300">
       <CardHeader>
         <div className="flex items-start justify-between">
           <div className="flex-1">
