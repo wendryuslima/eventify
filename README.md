@@ -186,17 +186,20 @@ npm install
 
 #### Opção A: Usando Docker (Recomendado)
 
+**Passo 1: Iniciar PostgreSQL**
+
 ```bash
-# Iniciar PostgreSQL via Docker
+# Execute na RAIZ do projeto
 docker-compose up -d postgres
+```
 
-# Gerar o cliente Prisma
+**Passo 2: Configurar banco de dados**
+
+```bash
+# Execute na pasta BACKEND
+cd backend
 npm run db:generate
-
-# Executar as migrações
 npm run db:migrate
-
-# Popular com dados de exemplo (opcional)
 npm run db:seed
 ```
 
@@ -215,13 +218,14 @@ DATABASE_URL="postgresql://seu_usuario:sua_senha@localhost:5432/eventify?schema=
 ```
 
 ```bash
-# Gerar o cliente Prisma
+# Gerar o cliente Prisma (na pasta backend)
+cd backend
 npm run db:generate
 
-# Executar as migrações
+# Executar as migrações (na pasta backend)
 npm run db:migrate
 
-# Popular com dados de exemplo (opcional)
+# Popular com dados de exemplo (opcional, na pasta backend)
 npm run db:seed
 ```
 
