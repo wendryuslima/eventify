@@ -156,13 +156,15 @@ cp env.example .env
 **Ou crie manualmente** o arquivo `.env` na pasta `backend/` com:
 
 ```env
-# Database
+# Database (para Docker Compose)
 DATABASE_URL="postgresql://eventify_user:eventify_password@localhost:5432/eventify?schema=public"
 
 # Server
 PORT=3001
 FRONTEND_URL="http://localhost:3000"
 ```
+
+**Localização do arquivo**: `backend/.env`
 
 #### Frontend (`.env.local`)
 
@@ -198,9 +200,19 @@ npm run db:migrate
 npm run db:seed
 ```
 
+**Nota**: Com Docker, a `DATABASE_URL` já está configurada corretamente no arquivo `backend/.env`:
+
+```env
+DATABASE_URL="postgresql://eventify_user:eventify_password@localhost:5432/eventify?schema=public"
+```
+
 #### Opção B: PostgreSQL Local
 
-Certifique-se de que o PostgreSQL está rodando localmente e configure a `DATABASE_URL` no arquivo `.env` com suas credenciais.
+Se você preferir usar PostgreSQL local, certifique-se de que está rodando e ajuste a `DATABASE_URL` no arquivo `backend/.env` com suas credenciais:
+
+```env
+DATABASE_URL="postgresql://seu_usuario:sua_senha@localhost:5432/eventify?schema=public"
+```
 
 ```bash
 # Gerar o cliente Prisma
