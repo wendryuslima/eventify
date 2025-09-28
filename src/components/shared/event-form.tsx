@@ -63,6 +63,7 @@ export const EventForm = ({
                 <Textarea
                   placeholder="Descreva o evento (opcional)"
                   rows={4}
+                  className="resize-none"
                   {...field}
                 />
               </FormControl>
