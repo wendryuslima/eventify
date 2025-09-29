@@ -1,117 +1,8 @@
-### Objetivos Técnicos Alcançados
+# Eventify - Sistema de Gestão de Eventos
 
-- **Arquitetura Fullstack**: Separação clara entre backend (Express + PostgreSQL) e frontend (Next.js 15)
-- **Type Safety**: TypeScript end-to-end com validação rigorosa
-- **Concorrência**: Controle de capacidade com transações atômicas
-- **UX/UI Moderna**: Interface responsiva com componentes reutilizáveis
-- **Observabilidade**: Sistema completo de auditoria e logs
-- **Tempo Real**: Atualizações automáticas com Socket.IO
+Sistema completo de gestão de eventos com inscrições, controle de capacidade e atualizações em tempo real.
 
-## Diferenciais Técnicos Implementados
-
-### Backend (Node.js + Express + PostgreSQL)
-
-**Gestão de Concorrência**
-
-- Transações atômicas para controle de capacidade
-- Prevenção de race conditions em inscrições simultâneas
-- Validação de duplicidade com constraints de banco
-
-  **Validação Robusta**
-
-- Schema validation com Zod em todas as camadas
-- Validação de telefone com DDD brasileiro
-- Sanitização de dados de entrada
-
-  **Observabilidade & Auditoria**
-
-- Log completo de todas as operações críticas
-- Rastreabilidade de inscrições e cancelamentos
-- Monitoramento de capacidade em tempo real
-
-### Frontend (Next.js 15 + React 19)
-
-**Performance & UX**
-
-- App Router do Next.js 15 com otimizações automáticas
-- Formulários otimizados com React Hook Form
-- Feedback visual imediato com toast notifications
-
-  **Acessibilidade & Design**
-
-- Componentes shadcn/ui seguindo padrões de acessibilidade
-- Máscaras inteligentes com react-number-format
-- Interface responsiva mobile-first
-
-  **Type Safety Frontend**
-
-- Tipagem completa da API com TypeScript
-- Validação de formulários com Zod schemas
-- Error boundaries e tratamento de estados
-
-## Stack Tecnológica
-
-### Backend
-
-- **Runtime**: Node.js + Express
-- **Database**: PostgreSQL + Prisma ORM
-- **Validation**: Zod schemas
-- **Language**: TypeScript
-- **Architecture**: RESTful API com middleware personalizado
-
-### Frontend
-
-- **Framework**: Next.js 15 (App Router)
-- **Library**: React 19
-- **Language**: TypeScript
-- **Styling**: Tailwind CSS
-- **Components**: shadcn/ui
-- **Forms**: React Hook Form + Zod
-- **UX**: Toast notifications, loading states
-
-### DevOps & Quality
-
-- **Database**: Docker Compose para PostgreSQL
-- **Development**: Script `dev:full` para execução simultânea
-- **Real-time**: Socket.IO para atualizações em tempo real
-- **Validation**: End-to-end type safety
-- **Code Quality**: ESLint + Prettier
-- **Environment**: Configuração completa de dev/prod
-
-## 🔧 Desafios Técnicos Resolvidos
-
-### 1. **Controle de Concorrência**
-
-- Implementação de transações atômicas para prevenir inscrições além da capacidade
-- Uso de `FOR UPDATE` no PostgreSQL para lock de registros
-- Tratamento de race conditions em cenários de alta concorrência
-
-### 2. **Validação de Duplicidade**
-
-- Constraint única no banco: `(event_id, phone)`
-- Validação em múltiplas camadas (frontend, backend, banco)
-- Feedback imediato ao usuário sobre duplicidade
-
-### 3. **Type Safety End-to-End**
-
-- Tipagem completa da API com TypeScript
-- Schemas Zod compartilhados entre frontend e backend
-- Validação de runtime com fallback graceful
-
-### 4. **UX/UI Responsiva**
-
-- Design mobile-first com Tailwind CSS
-- Componentes acessíveis seguindo WCAG
-- Estados de loading, erro e sucesso bem definidos
-
-### 5. **Tempo Real com Socket.IO**
-
-- Atualizações automáticas de capacidade em tempo real
-- Sincronização de inscrições entre múltiplos usuários
-- Notificações push para inscrições/cancelamentos
-- Rooms por evento para otimização de performance
-
-## 🚀 **Quick Start**
+## 🚀 Quick Start
 
 ```bash
 git clone https://github.com/wendryuslima/eventify.git
@@ -267,7 +158,44 @@ npm run dev
 docker-compose down
 ```
 
-## API Documentation
+## 📋 Funcionalidades
+
+- ✅ CRUD completo de eventos
+- ✅ Sistema de inscrições com controle de capacidade
+- ✅ Validação de duplicidade
+- ✅ Interface moderna e responsiva
+- ✅ Atualizações em tempo real
+- ✅ Sistema de auditoria completo
+- ✅ Documentação detalhada
+- ✅ Setup automatizado com Docker
+
+## 🧪 Como Testar
+
+### Funcionalidades Básicas
+
+1. **Criação de Eventos**: `http://localhost:3000/events/create`
+2. **Listagem**: Visualizar eventos com status e capacidade
+3. **Inscrição**: Formulário com validação de telefone
+4. **Cancelamento**: Remoção de inscrições existentes
+
+### Cenários de Concorrência
+
+1. **Capacidade Esgotada**: Teste com múltiplas inscrições simultâneas
+2. **Duplicidade**: Tentativa de inscrição duplicada
+3. **Validação**: Campos obrigatórios e formatos
+
+### Teste de Tempo Real (Socket.IO)
+
+1. **Abrir múltiplas abas** do navegador em `http://localhost:3000`
+2. **Navegar para um evento** específico
+3. **Fazer uma inscrição** em uma aba
+4. **Observar atualização automática** nas outras abas:
+   - Contador de vagas restantes
+   - Lista de participantes
+   - Notificações de inscrição/cancelamento
+5. **Testar cancelamento** e verificar sincronização entre abas
+
+## 📚 API Documentation
 
 ### Eventos Endpoints
 
@@ -286,58 +214,7 @@ docker-compose down
 
 - `GET /api/audit` - Logs de auditoria do sistema
 
-## Arquitetura do Banco de Dados
-
-### Schema Principal
-
-- **`Event`** - Eventos (title, description, status, capacity)
-- **`Inscription`** - Inscrições (name, phone, event_id)
-- **`AuditLog`** - Logs de auditoria completos
-
-### Constraints & Validações
-
-- **Unique Constraint**: `(event_id, phone)` - Previne duplicidade
-- **Check Constraints**: Capacidade >= 0, status válido
-- **Foreign Keys**: Integridade referencial garantida
-- **Transações**: Controle atômico de capacidade
-
-### Performance
-
-- **Índices**: Otimização de consultas por event_id e phone
-- **Queries**: Otimizadas para cenários de alta concorrência
-
-## Cenários de Teste
-
-### Funcionalidades Básicas
-
-1. **Criação de Eventos**: `http://localhost:3000/events/create`
-2. **Listagem**: Visualizar eventos com status e capacidade
-3. **Inscrição**: Formulário com validação de telefone
-4. **Cancelamento**: Remoção de inscrições existentes
-
-### Cenários de Concorrência
-
-1. **Capacidade Esgotada**: Teste com múltiplas inscrições simultâneas
-2. **Duplicidade**: Tentativa de inscrição duplicada
-3. **Validação**: Campos obrigatórios e formatos
-
-### Auditoria
-
-1. **Logs**: Verificar rastreabilidade em `/api/audit`
-2. **Histórico**: Todas as operações são registradas
-
-### Teste de Tempo Real (Socket.IO)
-
-1. **Abrir múltiplas abas** do navegador em `http://localhost:3000`
-2. **Navegar para um evento** específico
-3. **Fazer uma inscrição** em uma aba
-4. **Observar atualização automática** nas outras abas:
-   - Contador de vagas restantes
-   - Lista de participantes
-   - Notificações de inscrição/cancelamento
-5. **Testar cancelamento** e verificar sincronização entre abas
-
-## Scripts de Desenvolvimento
+## 🛠️ Scripts de Desenvolvimento
 
 ### Backend (`/backend`)
 
@@ -357,9 +234,146 @@ docker-compose down
 - `npm run start` - Executar em produção
 - `npm run lint` - Análise de código
 
-## 🎯 Competências Demonstradas
+---
 
-### Backend Development
+## 🎯 Detalhes Técnicos (Bônus)
+
+### Objetivos Técnicos Alcançados
+
+- **Arquitetura Fullstack**: Separação clara entre backend (Express + PostgreSQL) e frontend (Next.js 15)
+- **Type Safety**: TypeScript end-to-end com validação rigorosa
+- **Concorrência**: Controle de capacidade com transações atômicas
+- **UX/UI Moderna**: Interface responsiva com componentes reutilizáveis
+- **Observabilidade**: Sistema completo de auditoria e logs
+- **Tempo Real**: Atualizações automáticas com Socket.IO
+
+### Stack Tecnológica
+
+#### Backend
+
+- **Runtime**: Node.js + Express
+- **Database**: PostgreSQL + Prisma ORM
+- **Validation**: Zod schemas
+- **Language**: TypeScript
+- **Architecture**: RESTful API com middleware personalizado
+
+#### Frontend
+
+- **Framework**: Next.js 15 (App Router)
+- **Library**: React 19
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS
+- **Components**: shadcn/ui
+- **Forms**: React Hook Form + Zod
+- **UX**: Toast notifications, loading states
+
+#### DevOps & Quality
+
+- **Database**: Docker Compose para PostgreSQL
+- **Development**: Script `dev:full` para execução simultânea
+- **Real-time**: Socket.IO para atualizações em tempo real
+- **Validation**: End-to-end type safety
+- **Code Quality**: ESLint + Prettier
+- **Environment**: Configuração completa de dev/prod
+
+### Diferenciais Técnicos Implementados
+
+#### Backend (Node.js + Express + PostgreSQL)
+
+**Gestão de Concorrência**
+
+- Transações atômicas para controle de capacidade
+- Prevenção de race conditions em inscrições simultâneas
+- Validação de duplicidade com constraints de banco
+
+**Validação Robusta**
+
+- Schema validation com Zod em todas as camadas
+- Validação de telefone com DDD brasileiro
+- Sanitização de dados de entrada
+
+**Observabilidade & Auditoria**
+
+- Log completo de todas as operações críticas
+- Rastreabilidade de inscrições e cancelamentos
+- Monitoramento de capacidade em tempo real
+
+#### Frontend (Next.js 15 + React 19)
+
+**Performance & UX**
+
+- App Router do Next.js 15 com otimizações automáticas
+- Formulários otimizados com React Hook Form
+- Feedback visual imediato com toast notifications
+
+**Acessibilidade & Design**
+
+- Componentes shadcn/ui seguindo padrões de acessibilidade
+- Máscaras inteligentes com react-number-format
+- Interface responsiva mobile-first
+
+**Type Safety Frontend**
+
+- Tipagem completa da API com TypeScript
+- Validação de formulários com Zod schemas
+- Error boundaries e tratamento de estados
+
+### Desafios Técnicos Resolvidos
+
+#### 1. **Controle de Concorrência**
+
+- Implementação de transações atômicas para prevenir inscrições além da capacidade
+- Uso de `FOR UPDATE` no PostgreSQL para lock de registros
+- Tratamento de race conditions em cenários de alta concorrência
+
+#### 2. **Validação de Duplicidade**
+
+- Constraint única no banco: `(event_id, phone)`
+- Validação em múltiplas camadas (frontend, backend, banco)
+- Feedback imediato ao usuário sobre duplicidade
+
+#### 3. **Type Safety End-to-End**
+
+- Tipagem completa da API com TypeScript
+- Schemas Zod compartilhados entre frontend e backend
+- Validação de runtime com fallback graceful
+
+#### 4. **UX/UI Responsiva**
+
+- Design mobile-first com Tailwind CSS
+- Componentes acessíveis seguindo WCAG
+- Estados de loading, erro e sucesso bem definidos
+
+#### 5. **Tempo Real com Socket.IO**
+
+- Atualizações automáticas de capacidade em tempo real
+- Sincronização de inscrições entre múltiplos usuários
+- Notificações push para inscrições/cancelamentos
+- Rooms por evento para otimização de performance
+
+### Arquitetura do Banco de Dados
+
+#### Schema Principal
+
+- **`Event`** - Eventos (title, description, status, capacity)
+- **`Inscription`** - Inscrições (name, phone, event_id)
+- **`AuditLog`** - Logs de auditoria completos
+
+#### Constraints & Validações
+
+- **Unique Constraint**: `(event_id, phone)` - Previne duplicidade
+- **Check Constraints**: Capacidade >= 0, status válido
+- **Foreign Keys**: Integridade referencial garantida
+- **Transações**: Controle atômico de capacidade
+
+#### Performance
+
+- **Índices**: Otimização de consultas por event_id e phone
+- **Queries**: Otimizadas para cenários de alta concorrência
+
+### Competências Demonstradas
+
+#### Backend Development
 
 - **API Design**: RESTful com endpoints bem estruturados
 - **Database Design**: Schema normalizado com constraints apropriados
@@ -368,7 +382,7 @@ docker-compose down
 - **Error Handling**: Tratamento adequado de erros e edge cases
 - **Real-time**: Socket.IO para comunicação em tempo real
 
-### Frontend Development
+#### Frontend Development
 
 - **Modern React**: Hooks, context, e padrões atuais
 - **Type Safety**: TypeScript end-to-end
@@ -377,7 +391,7 @@ docker-compose down
 - **State Management**: Gerenciamento eficiente de estado
 - **Accessibility**: Componentes acessíveis seguindo WCAG
 
-### DevOps & Quality
+#### DevOps & Quality
 
 - **Environment Setup**: Configuração completa de desenvolvimento
 - **Database Management**: Migrações e seeds automatizados
@@ -388,96 +402,7 @@ docker-compose down
 
 ---
 
-## 📝 Notas de Entrega
-
-Este projeto demonstra um sistema completo de gestão de eventos com todas as funcionalidades solicitadas e diferenciais técnicos implementados. O código está pronto para produção e inclui:
-
-- ✅ CRUD completo de eventos
-- ✅ Sistema de inscrições com controle de capacidade
-- ✅ Validação de duplicidade
-- ✅ Interface moderna e responsiva
-- ✅ Atualizações em tempo real
-- ✅ Sistema de auditoria completo
-- ✅ Documentação detalhada
-- ✅ Setup automatizado com Docker
-
-**Para testar**: Execute `npm run dev:full` e acesse `http://localhost:3000`
-
-## 🚨 Troubleshooting
-
-### Problemas Comuns
-
-**1. Erro de conexão com banco de dados**
-
-```bash
-# Verifique se o PostgreSQL está rodando
-docker-compose ps
-
-# Se não estiver, inicie novamente
-docker-compose up -d postgres
-```
-
-**2. Erro "Module not found" no backend**
-
-```bash
-cd backend
-npm install
-npm run db:generate
-```
-
-**3. Erro de migração**
-
-```bash
-cd backend
-npm run db:migrate
-```
-
-**4. Frontend não conecta com backend**
-
-- Verifique se o backend está rodando na porta 3001
-- Confirme se o arquivo `.env.local` tem a URL correta
-- Verifique se não há firewall bloqueando as portas
-
-**5. Erro de TypeScript: "Property 'inscriptions' does not exist"**
-
-```bash
-echo 'NEXT_PUBLIC_API_URL="http://localhost:3001/api"' > .env.local
-cd backend && cp env.example .env && cd ..
-npm run db:generate
-npm run dev:full
-```
-
-**6. Erro "@prisma/client did not initialize yet"**
-
-```bash
-npm run db:generate
-npm run dev:full
-```
-
-**7. Script dev:full não funciona**
-
-```bash
-# Execute separadamente:
-# Terminal 1:
-cd backend && npm run dev
-
-# Terminal 2:
-npm run dev
-```
-
-### Logs e Debug
-
-Para ver logs detalhados do backend, ajuste no arquivo `backend/.env`:
-
-```env
-LOG_LEVEL=debug
-```
-
-##
-
 **Wendryus Lima**
 
 - GitHub: [@wendryuslima](https://github.com/wendryuslima)
 - LinkedIn: [Wendryus Lima](https://linkedin.com/in/wendryuslima)
-
----
