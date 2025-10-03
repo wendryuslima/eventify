@@ -37,7 +37,7 @@ const EventHeader = ({ event, onEventDeleted }: EventHeaderProps) => {
             </Button>
           </Link>
 
-          <div className="flex gap-2 sm:hidden">
+          <div className="flex gap-4  sm:hidden">
             <Link href={`/events/${event.id}/edit`}>
               <Button variant="outline" size="sm">
                 <Edit className="h-4 w-4" />
